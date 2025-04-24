@@ -1,0 +1,148 @@
+.sidenav-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background-color: #ffffff;
+}
+
+.sidenav-header {
+  display: flex;
+  align-items: center;
+  padding: 16px;
+  background-color: #f8f9fa;
+}
+
+.sidenav-logo {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  margin-right: 10px;
+}
+
+.sidenav-title {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #1a3c8f;
+}
+
+.sidenav-user {
+  display: flex;
+  align-items: center;
+  padding: 16px;
+  background-color: #f8f9fa;
+}
+
+.user-avatar {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: #e0e0e0;
+  margin-right: 12px;
+}
+
+.user-avatar mat-icon {
+  color: #757575;
+}
+
+.user-info {
+  flex: 1;
+}
+
+.user-name {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.user-role {
+  margin: 0;
+  font-size: 0.8rem;
+  color: #757575;
+}
+
+.sidenav-content {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.nav-item {
+  border-radius: 4px;
+  margin: 4px 8px;
+  transition: background-color 0.3s;
+}
+
+.nav-item.active {
+  background-color: rgba(26, 60, 143, 0.1);
+  color: #1a3c8f;
+}
+
+.nav-item.active mat-icon {
+  color: #1a3c8f;
+}
+
+.parent-item {
+  position: relative;
+}
+
+.expand-icon {
+  position: absolute;
+  right: 16px;
+  transition: transform 0.3s;
+}
+
+.expand-icon.expanded {
+  transform: rotate(180deg);
+}
+
+.child-items {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease-out;
+}
+
+.child-items.expanded {
+  max-height: 500px; /* Adjust based on your needs */
+}
+
+.child-item {
+  padding-left: 32px;
+  font-size: 0.9rem;
+}
+
+.sidenav-footer {
+  padding: 8px;
+}
+
+.logout-button {
+  width: 100%;
+  text-align: left;
+  padding: 8px 16px;
+  margin-top: 8px;
+  color: #e63946;
+}
+
+.logout-button mat-icon {
+  margin-right: 8px;
+}
+
+@media (max-width: 768px) {
+  .sidenav-title {
+    display: none;
+  }
+
+  .user-info {
+    display: none;
+  }
+
+  .sidenav-user {
+    justify-content: center;
+  }
+
+  .nav-item span {
+    font-size: 0.8rem;
+  }
+}

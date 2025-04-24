@@ -1,0 +1,13 @@
+<mat-card class="kpi-card">
+    <div class="kpi-icon" [style.background-color]="color + '15'">
+      <mat-icon [style.color]="color">{{ icon }}</mat-icon>
+    </div>
+    <div class="kpi-content">
+      <h3 class="kpi-title">{{ title }}</h3>
+      <p class="kpi-value">{{ value }}</p>
+      <div *ngIf="percentage !== null" class="kpi-percentage">
+        <mat-progress-bar mode="determinate" [value]="percentage" [color]="color === '#4caf50' ? 'primary' : 'accent'"></mat-progress-bar>
+        <span>{{ percentage | number:'1.0-0' }}%</span>
+      </div>
+    </div>
+  </mat-card>

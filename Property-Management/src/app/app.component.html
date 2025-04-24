@@ -1,0 +1,17 @@
+<div class="app-container">
+  <ng-container *ngIf="showNavigation">
+    <app-top-toolbar (toggleSideNav)="toggleSideNav()"></app-top-toolbar>
+    <mat-sidenav-container class="sidenav-container">
+      <mat-sidenav #sidenav mode="side" opened class="sidenav">
+        <app-side-nav></app-side-nav>
+      </mat-sidenav>
+      <mat-sidenav-content class="sidenav-content">
+        <router-outlet></router-outlet>
+      </mat-sidenav-content>
+    </mat-sidenav-container>
+  </ng-container>
+
+  <ng-container *ngIf="!showNavigation">
+    <router-outlet></router-outlet>
+  </ng-container>
+</div>

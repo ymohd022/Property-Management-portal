@@ -1,0 +1,70 @@
+.splash-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    width: 100vw;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    overflow: hidden;
+  }
+  
+  .splash-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    animation: fadeIn 1s ease-in-out;
+  }
+  
+  .logo-image {
+    width: 200px;
+    height: auto;
+    margin-bottom: 20px;
+  }
+  
+  .company-name {
+    font-size: 3rem;
+    font-weight: 700;
+    color: #1a3c8f;
+    margin: 0;
+    letter-spacing: 2px;
+  }
+  
+  .company-tagline {
+    font-size: 1.2rem;
+    font-weight: 500;
+    color: #e63946;
+    margin: 5px 0 30px;
+    letter-spacing: 1px;
+  }
+  
+  .loading-indicator {
+    width: 250px;
+    margin-top: 20px;
+  }
+  
+  .welcome-text {
+    font-size: 1.2rem;
+    color: #1a3c8f;
+    margin-top: 10px;
+    animation: fadeIn 0.5s ease-in-out;
+  }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  
+  @media (max-width: 768px) {
+    .logo-image {
+      width: 150px;
+    }
+    
+    .company-name {
+      font-size: 2.5rem;
+    }
+    
+    .company-tagline {
+      font-size: 1rem;
+    }
+  }
