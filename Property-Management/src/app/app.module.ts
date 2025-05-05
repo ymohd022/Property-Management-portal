@@ -28,6 +28,9 @@ import { MatBadgeModule } from '@angular/material/badge';
 import { MatChipsModule } from "@angular/material/chips"
 import { MatExpansionModule } from "@angular/material/expansion"
 
+
+
+
 // Components
 import { AppComponent } from './app.component';
 
@@ -43,6 +46,12 @@ import { KpiCardComponent } from './dashboard/kpi-card/kpi-card.component';
 import { ChartCardComponent } from './dashboard/chart-card/chart-card.component';
 import { AddPropertyComponent } from './dashboard/properties/add-property/add-property.component';
 import { PropertiesListComponent } from './dashboard/properties/properties-list/properties-list.component';
+import { AgentsListComponent } from './dashboard/agents/agents-list/agents-list.component';
+import { AddAgentComponent } from './dashboard/agents/add-agent/add-agent.component';
+import { AssignAgentDialogComponent } from './dashboard/agents/assign-agent-dialog/assign-agent-dialog.component';
+import { AgentDashboardComponent } from './dashboard/agents/agent-dashboard/agent-dashboard.component';
+import { AgentLeadsComponent } from './dashboard/agents/agent-leads/agent-leads.component';
+import { AddLeadDialogComponent } from './dashboard/agents/add-lead-dialog/add-lead-dialog.component';
 
 @NgModule({
   declarations: [
@@ -57,6 +66,12 @@ import { PropertiesListComponent } from './dashboard/properties/properties-list/
     ChartCardComponent,
     AddPropertyComponent,
     PropertiesListComponent,
+    AgentsListComponent,
+    AddAgentComponent,
+    AssignAgentDialogComponent,
+    AgentDashboardComponent,
+    AgentLeadsComponent,
+    AddLeadDialogComponent,
   ],
   imports: [
     BrowserModule,

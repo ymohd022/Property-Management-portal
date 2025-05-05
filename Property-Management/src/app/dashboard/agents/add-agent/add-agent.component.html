@@ -1,0 +1,127 @@
+<div class="add-agent-container">
+    <div class="page-header">
+      <div class="header-content">
+        <button mat-icon-button routerLink="/agents">
+          <mat-icon>arrow_back</mat-icon>
+        </button>
+        <h1 class="page-title">Add Agent</h1>
+      </div>
+    </div>
+  
+    <div class="form-container">
+      <form [formGroup]="agentForm" (ngSubmit)="onSubmit()">
+        <div class="form-section">
+          <h2 class="section-title">Agent Information</h2>
+          
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>Full Name *</mat-label>
+              <input matInput formControlName="name" placeholder="Enter agent's full name">
+              <mat-error *ngIf="agentForm.get('name')?.hasError('required')">
+                Name is required
+              </mat-error>
+            </mat-form-field>
+          </div>
+          
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>Email *</mat-label>
+              <input matInput formControlName="email" placeholder="Enter agent's email" type="email">
+              <mat-error *ngIf="agentForm.get('email')?.hasError('required')">
+                Email is required
+              </mat-error>
+              <mat-error *ngIf="agentForm.get('email')?.hasError('email')">
+                Please enter a valid email
+              </mat-error>
+            </mat-form-field>
+          </div>
+          
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>Phone Number *</mat-label>
+              <input matInput formControlName="phone" placeholder="Enter agent's phone number">
+              <mat-error *ngIf="agentForm.get('phone')?.hasError('required')">
+                Phone number is required
+              </mat-error>
+              <mat-error *ngIf="agentForm.get('phone')?.hasError('pattern')">
+                Please enter a valid phone number
+              </mat-error>
+            </mat-form-field>
+          </div>
+          
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>Password *</mat-label>
+              <input matInput formControlName="password" [type]="hidePassword ? 'password' : 'text'" placeholder="Enter password">
+              <button mat-icon-button matSuffix type="button" (click)="hidePassword = !hidePassword">
+                <mat-icon>{{hidePassword ? 'visibility_off' : 'visibility'}}</mat-icon>
+              </button>
+              <mat-error *ngIf="agentForm.get('password')?.hasError('required')">
+                Password is required
+              </mat-error>
+              <mat-error *ngIf="agentForm.get('password')?.hasError('minlength')">
+                Password must be at least 6 characters
+              </mat-error>
+            </mat-form-field>
+          </div>
+          
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>Confirm Password *</mat-label>
+              <input matInput formControlName="confirmPassword" [type]="hidePassword ? 'password' : 'text'" placeholder="Confirm password">
+              <mat-error *ngIf="agentForm.get('confirmPassword')?.hasError('required')">
+                Please confirm your password
+              </mat-error>
+              <mat-error *ngIf="agentForm.hasError('notMatching')">
+                Passwords do not match
+              </mat-error>
+            </mat-form-field>
+          </div>
+          
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>Address</mat-label>
+              <textarea matInput formControlName="address" placeholder="Enter agent's address" rows="3"></textarea>
+            </mat-form-field>
+          </div>
+        </div>
+        
+        <div class="form-section">
+          <h2 class="section-title">Commission Details</h2>
+          
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>Commission Rate (%) *</mat-label>
+              <input matInput formControlName="commissionRate" type="number" min="0" max="100">
+              <mat-hint>Default commission percentage for this agent</mat-hint>
+              <mat-error *ngIf="agentForm.get('commissionRate')?.hasError('required')">
+                Commission rate is required
+              </mat-error>
+              <mat-error *ngIf="agentForm.get('commissionRate')?.hasError('min') || agentForm.get('commissionRate')?.hasError('max')">
+                Commission rate must be between 0 and 100
+              </mat-error>
+            </mat-form-field>
+          </div>
+          
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>Status</mat-label>
+              <mat-select formControlName="status">
+                <mat-option value="Active">Active</mat-option>
+                <mat-option value="Inactive">Inactive</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+        </div>
+        
+        <div class="form-actions">
+          <button type="button" mat-stroked-button routerLink="/agents">Cancel</button>
+          <button type="submit" mat-raised-button color="primary" [disabled]="isLoading">
+            <mat-spinner diameter="20" *ngIf="isLoading"></mat-spinner>
+            <span *ngIf="!isLoading">Save Agent</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+  

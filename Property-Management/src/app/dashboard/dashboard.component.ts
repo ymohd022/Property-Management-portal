@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { DashboardService } from '../../services/dashboard.service';
+import { DashboardService } from '../services/dashboard.service';
 import { Chart, registerables } from 'chart.js';
 
 Chart.register(...registerables);

@@ -1,0 +1,70 @@
+<h2 mat-dialog-title>Assign Agent to Property</h2>
+<div mat-dialog-content>
+  <p class="agent-info">
+    <strong>Agent:</strong> {{ data.agent.name }} ({{ data.agent.email }})
+  </p>
+  
+  <form [formGroup]="assignForm">
+    <div class="form-row">
+      <mat-form-field appearance="outline" class="form-field">
+        <mat-label>Select Property *</mat-label>
+        <mat-select formControlName="propertyId" (selectionChange)="onPropertyChange()">
+          <mat-option *ngIf="loadingProperties">Loading properties...</mat-option>
+          <mat-option *ngFor="let property of properties" [value]="property.id">
+            {{ property.name }} ({{ property.location }})
+          </mat-option>
+        </mat-select>
+        <mat-error *ngIf="assignForm.get('propertyId')?.hasError('required')">
+          Property is required
+        </mat-error>
+      </mat-form-field>
+    </div>
+    
+    <div class="form-row">
+      <mat-form-field appearance="outline" class="form-field">
+        <mat-label>Select Flat (Optional)</mat-label>
+        <mat-select formControlName="flatId">
+          <mat-option *ngIf="loadingFlats">Loading flats...</mat-option>
+          <mat-option *ngIf="!loadingFlats && flats.length === 0 && assignForm.get('propertyId')?.value">
+            No flats available for this property
+          </mat-option>
+          <mat-option *ngIf="!loadingFlats && flats.length === 0 && !assignForm.get('propertyId')?.value">
+            Please select a property first
+          </mat-option>
+          <mat-option *ngFor="let flat of flats" [value]="flat.id">
+            Flat {{ flat.flatNumber }} ({{ flat.type }}) - {{ flat.status }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+    
+    <div class="form-row">
+      <mat-form-field appearance="outline" class="form-field">
+        <mat-label>Commission Rate (%) *</mat-label>
+        <input matInput formControlName="commissionRate" type="number" min="0" max="100">
+        <mat-hint>Commission percentage for this assignment</mat-hint>
+        <mat-error *ngIf="assignForm.get('commissionRate')?.hasError('required')">
+          Commission rate is required
+        </mat-error>
+        <mat-error *ngIf="assignForm.get('commissionRate')?.hasError('min') || assignForm.get('commissionRate')?.hasError('max')">
+          Commission rate must be between 0 and 100
+        </mat-error>
+      </mat-form-field>
+    </div>
+    
+    <div class="form-row">
+      <mat-form-field appearance="outline" class="form-field">
+        <mat-label>Notes</mat-label>
+        <textarea matInput formControlName="notes" placeholder="Enter any additional notes" rows="3"></textarea>
+      </mat-form-field>
+    </div>
+  </form>
+</div>
+
+<div mat-dialog-actions align="end">
+  <button mat-button (click)="onCancel()">Cancel</button>
+  <button mat-raised-button color="primary" (click)="onSubmit()" [disabled]="assignForm.invalid || isLoading">
+    <mat-spinner diameter="20" *ngIf="isLoading"></mat-spinner>
+    <span *ngIf="!isLoading">Assign Agent</span>
+  </button>
+</div>

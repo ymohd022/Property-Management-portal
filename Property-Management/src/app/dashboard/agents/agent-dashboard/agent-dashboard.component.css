@@ -1,0 +1,176 @@
+.agent-dashboard-container {
+    padding: 20px;
+    height: 100%;
+  }
+  
+  .dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+  }
+  
+  .dashboard-title {
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: #333;
+    margin: 0;
+  }
+  
+  .dashboard-actions {
+    display: flex;
+    gap: 12px;
+  }
+  
+  .loading-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 400px;
+  }
+  
+  .loading-container p {
+    margin-top: 16px;
+    color: #666;
+  }
+  
+  .dashboard-content {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+  
+  .kpi-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+  }
+  
+  .charts-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+  
+  .leads-chart,
+  .sales-chart,
+  .commission-chart {
+    height: 300px;
+  }
+  
+  .section-title {
+    font-size: 1.4rem;
+    font-weight: 500;
+    color: #333;
+    margin: 0 0 16px 0;
+  }
+  
+  .properties-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+  }
+  
+  .property-card {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .property-stats {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 16px;
+  }
+  
+  .stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  
+  .stat-label {
+    font-size: 0.9rem;
+    color: #666;
+  }
+  
+  .stat-value {
+    font-size: 1.2rem;
+    font-weight: 500;
+    color: #333;
+    margin-top: 4px;
+  }
+  
+  .bottom-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+  
+  .recent-leads,
+  .recent-sales {
+    height: 400px;
+    overflow: auto;
+  }
+  
+  .leads-table,
+  .sales-table {
+    width: 100%;
+  }
+  
+  .status-badge {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: 500;
+  }
+  
+  .status-active {
+    background-color: rgba(255, 152, 0, 0.1);
+    color: #ff9800;
+  }
+  
+  .status-converted {
+    background-color: rgba(76, 175, 80, 0.1);
+    color: #4caf50;
+  }
+  
+  .status-lost {
+    background-color: rgba(244, 67, 54, 0.1);
+    color: #f44336;
+  }
+  
+  .status-completed {
+    background-color: rgba(76, 175, 80, 0.1);
+    color: #4caf50;
+  }
+  
+  .status-pending {
+    background-color: rgba(255, 152, 0, 0.1);
+    color: #ff9800;
+  }
+  
+  @media (max-width: 1200px) {
+    .charts-row {
+      grid-template-columns: 1fr;
+    }
+  
+    .bottom-row {
+      grid-template-columns: 1fr;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .dashboard-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 12px;
+    }
+  
+    .kpi-cards {
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    }
+  }
+  

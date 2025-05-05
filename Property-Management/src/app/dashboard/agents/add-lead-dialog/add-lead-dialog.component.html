@@ -1,0 +1,88 @@
+<h2 mat-dialog-title>Add New Lead</h2>
+<div mat-dialog-content>
+  <form [formGroup]="leadForm">
+    <div class="form-row">
+      <mat-form-field appearance="outline" class="form-field">
+        <mat-label>Client Name *</mat-label>
+        <input matInput formControlName="clientName" placeholder="Enter client's name">
+        <mat-error *ngIf="leadForm.get('clientName')?.hasError('required')">
+          Client name is required
+        </mat-error>
+      </mat-form-field>
+    </div>
+    
+    <div class="form-row">
+      <mat-form-field appearance="outline" class="form-field">
+        <mat-label>Client Email *</mat-label>
+        <input matInput formControlName="clientEmail" placeholder="Enter client's email" type="email">
+        <mat-error *ngIf="leadForm.get('clientEmail')?.hasError('required')">
+          Email is required
+        </mat-error>
+        <mat-error *ngIf="leadForm.get('clientEmail')?.hasError('email')">
+          Please enter a valid email
+        </mat-error>
+      </mat-form-field>
+    </div>
+    
+    <div class="form-row">
+      <mat-form-field appearance="outline" class="form-field">
+        <mat-label>Client Phone *</mat-label>
+        <input matInput formControlName="clientPhone" placeholder="Enter client's phone number">
+        <mat-error *ngIf="leadForm.get('clientPhone')?.hasError('required')">
+          Phone number is required
+        </mat-error>
+        <mat-error *ngIf="leadForm.get('clientPhone')?.hasError('pattern')">
+          Please enter a valid phone number
+        </mat-error>
+      </mat-form-field>
+    </div>
+    
+    <div class="form-row">
+      <mat-form-field appearance="outline" class="form-field">
+        <mat-label>Select Property *</mat-label>
+        <mat-select formControlName="propertyId" (selectionChange)="onPropertyChange()">
+          <mat-option *ngIf="loadingProperties">Loading properties...</mat-option>
+          <mat-option *ngFor="let property of properties" [value]="property.id">
+            {{ property.name }} ({{ property.location }})
+          </mat-option>
+        </mat-select>
+        <mat-error *ngIf="leadForm.get('propertyId')?.hasError('required')">
+          Property is required
+        </mat-error>
+      </mat-form-field>
+    </div>
+    
+    <div class="form-row">
+      <mat-form-field appearance="outline" class="form-field">
+        <mat-label>Select Flat (Optional)</mat-label>
+        <mat-select formControlName="flatId">
+          <mat-option *ngIf="loadingFlats">Loading flats...</mat-option>
+          <mat-option *ngIf="!loadingFlats && flats.length === 0 && leadForm.get('propertyId')?.value">
+            No flats available for this property
+          </mat-option>
+          <mat-option *ngIf="!loadingFlats && flats.length === 0 && !leadForm.get('propertyId')?.value">
+            Please select a property first
+          </mat-option>
+          <mat-option *ngFor="let flat of flats" [value]="flat.id">
+            Flat {{ flat.flatNumber }} ({{ flat.type }}) - {{ flat.status }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+    
+    <div class="form-row">
+      <mat-form-field appearance="outline" class="form-field">
+        <mat-label>Notes</mat-label>
+        <textarea matInput formControlName="notes" placeholder="Enter any additional notes" rows="3"></textarea>
+      </mat-form-field>
+    </div>
+  </form>
+</div>
+
+<div mat-dialog-actions align="end">
+  <button mat-button (click)="onCancel()">Cancel</button>
+  <button mat-raised-button color="primary" (click)="onSubmit()" [disabled]="leadForm.invalid || isLoading">
+    <mat-spinner diameter="20" *ngIf="isLoading"></mat-spinner>
+    <span *ngIf="!isLoading">Add Lead</span>
+  </button>
+</div>

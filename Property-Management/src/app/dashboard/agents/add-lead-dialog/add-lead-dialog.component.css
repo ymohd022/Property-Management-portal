@@ -1,0 +1,16 @@
+.form-row {
+    margin-bottom: 16px;
+  }
+  
+  .form-field {
+    width: 100%;
+  }
+  
+  mat-dialog-content {
+    min-height: 300px;
+  }
+  
+  mat-dialog-actions {
+    padding: 16px 0;
+  }
+  
