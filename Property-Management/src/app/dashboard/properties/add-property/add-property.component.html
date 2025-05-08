@@ -1,281 +1,509 @@
 <div class="add-property-container">
-    <div class="page-header">
-      <div class="header-content">
-        <button mat-icon-button routerLink="/properties">
-          <mat-icon>arrow_back</mat-icon>
-        </button>
-        <h1 class="page-title">Add Property</h1>
-      </div>
+  <div class="page-header">
+    <div class="header-content">
+      <button mat-icon-button routerLink="/properties">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <h1 class="page-title">Add Property</h1>
     </div>
-  
-    <div class="form-container">
-      <form [formGroup]="propertyForm" (ngSubmit)="onSubmit()">
-        <!-- Basic Property Information -->
-        <div class="form-section">
-          <h2 class="section-title">Basic Information</h2>
-          
-          <div class="form-row">
-            <mat-form-field appearance="outline" class="form-field">
-              <mat-label>Site Name *</mat-label>
-              <input matInput formControlName="siteName" placeholder="Enter site name">
-              <mat-error *ngIf="propertyForm.get('siteName')?.hasError('required')">
-                Site name is required
-              </mat-error>
-            </mat-form-field>
-          </div>
-          
-          <div class="form-row">
-            <mat-form-field appearance="outline" class="form-field">
-              <mat-label>Select Site Type *</mat-label>
-              <mat-select formControlName="siteType">
-                <mat-option *ngFor="let type of siteTypes" [value]="type.value">
-                  {{type.viewValue}}
-                </mat-option>
-              </mat-select>
-              <mat-error *ngIf="propertyForm.get('siteType')?.hasError('required')">
-                Site type is required
-              </mat-error>
-            </mat-form-field>
-          </div>
-          
-          <div class="form-row">
-            <mat-form-field appearance="outline" class="form-field">
-              <mat-label>Site Price *</mat-label>
-              <input matInput formControlName="sitePrice" placeholder="Enter site price" type="number">
-              <span matPrefix>₹&nbsp;</span>
-              <mat-error *ngIf="propertyForm.get('sitePrice')?.hasError('required')">
-                Site price is required
-              </mat-error>
-              <mat-error *ngIf="propertyForm.get('sitePrice')?.hasError('min')">
-                Price must be greater than 0
-              </mat-error>
-            </mat-form-field>
-          </div>
-          
-          <div class="form-row">
-            <mat-form-field appearance="outline" class="form-field">
-              <mat-label>Site Locality *</mat-label>
-              <input matInput formControlName="siteLocality" placeholder="Enter site locality">
-              <mat-error *ngIf="propertyForm.get('siteLocality')?.hasError('required')">
-                Site locality is required
-              </mat-error>
-            </mat-form-field>
-          </div>
-          
-          <div class="form-row">
-            <mat-form-field appearance="outline" class="form-field">
-              <mat-label>Select Site Status *</mat-label>
-              <mat-select formControlName="siteStatus">
-                <mat-option *ngFor="let status of siteStatuses" [value]="status.value">
-                  {{status.viewValue}}
-                </mat-option>
-              </mat-select>
-              <mat-error *ngIf="propertyForm.get('siteStatus')?.hasError('required')">
-                Site status is required
-              </mat-error>
-            </mat-form-field>
-          </div>
-          
-          <div class="form-row">
-            <mat-form-field appearance="outline" class="form-field">
-              <mat-label>Total Count *</mat-label>
-              <input matInput formControlName="totalCount" type="number" min="1">
-              <mat-error *ngIf="propertyForm.get('totalCount')?.hasError('required')">
-                Total count is required
-              </mat-error>
-              <mat-error *ngIf="propertyForm.get('totalCount')?.hasError('min')">
-                Count must be at least 1
-              </mat-error>
-            </mat-form-field>
-          </div>
-          
-          <div class="form-row">
-            <mat-form-field appearance="outline" class="form-field">
-              <mat-label>Total Land Area *</mat-label>
-              <input matInput formControlName="totalLandArea" placeholder="e.g., 10000 sq.ft">
-              <mat-error *ngIf="propertyForm.get('totalLandArea')?.hasError('required')">
-                Total land area is required
-              </mat-error>
-            </mat-form-field>
-          </div>
-          
-          <div class="form-row">
-            <mat-form-field appearance="outline" class="form-field">
-              <mat-label>Unit Sizes *</mat-label>
-              <input matInput formControlName="unitSizes" placeholder="e.g., 800-1200 sq.ft">
-              <mat-error *ngIf="propertyForm.get('unitSizes')?.hasError('required')">
-                Unit sizes are required
-              </mat-error>
-            </mat-form-field>
-          </div>
-          
-          <div class="form-row amenities-section">
-            <label class="amenities-label">Amenities *</label>
-            <div class="amenities-chips">
-              <mat-chip-listbox multiple>
-                <mat-chip-option 
-                  *ngFor="let amenity of amenities" 
-                  [selected]="isAmenitySelected(amenity.value)"
-                  (selectionChange)="toggleAmenity(amenity.value)">
-                  {{amenity.viewValue}}
-                </mat-chip-option>
-              </mat-chip-listbox>
-            </div>
-          </div>
+  </div>
+
+  <div class="form-container">
+    <form [formGroup]="propertyForm" (ngSubmit)="onSubmit()">
+      <!-- Basic Property Information -->
+      <div class="form-section">
+        <h2 class="section-title">Basic Information</h2>
+        
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>Site Name *</mat-label>
+            <input matInput formControlName="siteName" placeholder="Enter site name">
+            <mat-error *ngIf="propertyForm.get('siteName')?.hasError('required')">
+              Site name is required
+            </mat-error>
+          </mat-form-field>
         </div>
         
-        <!-- Floors & Flats Configuration -->
-        <div class="form-section">
-          <h2 class="section-title">Floors & Flats Configuration</h2>
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>Select Site Type *</mat-label>
+            <mat-select formControlName="siteType">
+              <mat-option *ngFor="let type of siteTypes" [value]="type.value">
+                {{type.viewValue}}
+              </mat-option>
+            </mat-select>
+            <mat-error *ngIf="propertyForm.get('siteType')?.hasError('required')">
+              Site type is required
+            </mat-error>
+          </mat-form-field>
+        </div>
+        
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>Site Price *</mat-label>
+            <input matInput formControlName="sitePrice" placeholder="Enter site price" type="number">
+            <span matPrefix>₹&nbsp;</span>
+            <mat-error *ngIf="propertyForm.get('sitePrice')?.hasError('required')">
+              Site price is required
+            </mat-error>
+            <mat-error *ngIf="propertyForm.get('sitePrice')?.hasError('min')">
+              Price must be greater than 0
+            </mat-error>
+          </mat-form-field>
+        </div>
+        
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>Site Locality *</mat-label>
+            <input matInput formControlName="siteLocality" placeholder="Enter site locality">
+            <mat-error *ngIf="propertyForm.get('siteLocality')?.hasError('required')">
+              Site locality is required
+            </mat-error>
+          </mat-form-field>
+        </div>
+        
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>Select Site Status *</mat-label>
+            <mat-select formControlName="siteStatus">
+              <mat-option *ngFor="let status of siteStatuses" [value]="status.value">
+                {{status.viewValue}}
+              </mat-option>
+            </mat-select>
+            <mat-error *ngIf="propertyForm.get('siteStatus')?.hasError('required')">
+              Site status is required
+            </mat-error>
+          </mat-form-field>
+        </div>
+        
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>Total Count *</mat-label>
+            <input matInput formControlName="totalCount" type="number" min="1">
+            <mat-error *ngIf="propertyForm.get('totalCount')?.hasError('required')">
+              Total count is required
+            </mat-error>
+            <mat-error *ngIf="propertyForm.get('totalCount')?.hasError('min')">
+              Count must be at least 1
+            </mat-error>
+          </mat-form-field>
+        </div>
+        
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>Total Land Area *</mat-label>
+            <input matInput formControlName="totalLandArea" placeholder="e.g., 10000 sq.ft">
+            <mat-error *ngIf="propertyForm.get('totalLandArea')?.hasError('required')">
+              Total land area is required
+            </mat-error>
+          </mat-form-field>
+        </div>
+        
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>Unit Sizes *</mat-label>
+            <input matInput formControlName="unitSizes" placeholder="e.g., 800-1200 sq.ft">
+            <mat-error *ngIf="propertyForm.get('unitSizes')?.hasError('required')">
+              Unit sizes are required
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>GHMC Permit No</mat-label>
+            <input matInput formControlName="permitNumber" placeholder="Enter permit number">
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>Target Market</mat-label>
+            <input matInput formControlName="targetMarket" placeholder="e.g., High-end, Mid-range, Budget">
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>Remarks</mat-label>
+            <textarea matInput formControlName="remarks" placeholder="Additional notes" rows="3"></textarea>
+          </mat-form-field>
+        </div>
+        
+        <div class="form-row amenities-section">
+          <label class="amenities-label">Amenities *</label>
+          <div class="amenities-chips">
+            <mat-chip-listbox multiple>
+              <mat-chip-option 
+                *ngFor="let amenity of amenities" 
+                [selected]="isAmenitySelected(amenity.value)"
+                (selectionChange)="toggleAmenity(amenity.value)">
+                {{amenity.viewValue}}
+              </mat-chip-option>
+            </mat-chip-listbox>
+          </div>
+        </div>
+      </div>
+
+      <!-- Block Configuration -->
+      <div class="form-section">
+        <h2 class="section-title">Block Configuration</h2>
+        
+        <div class="form-row block-status">
+          <mat-label>Block Status</mat-label>
+          <mat-radio-group formControlName="hasBlocks">
+            <mat-radio-button [value]="true">Yes</mat-radio-button>
+            <mat-radio-button [value]="false">No</mat-radio-button>
+          </mat-radio-group>
+        </div>
+        
+        <div class="form-row" *ngIf="hasBlocks">
+          <mat-form-field appearance="outline">
+            <mat-label>No of Blocks *</mat-label>
+            <input matInput formControlName="totalBlocks" type="number" min="1" max="10">
+            <mat-error *ngIf="propertyForm.get('totalBlocks')?.hasError('min')">
+              Must be at least 1
+            </mat-error>
+            <mat-error *ngIf="propertyForm.get('totalBlocks')?.hasError('max')">
+              Maximum 10 blocks allowed
+            </mat-error>
+          </mat-form-field>
           
-          <div class="form-row floors-config">
-            <mat-form-field appearance="outline">
-              <mat-label>Total Floors</mat-label>
-              <input matInput formControlName="totalFloors" type="number" min="1" max="100">
-            </mat-form-field>
+          <button type="button" mat-raised-button color="primary" (click)="initBlocks()">
+            Generate Blocks
+          </button>
+        </div>
+      </div>
+      
+      <!-- Blocks and Floors -->
+      <div class="form-section" *ngIf="hasBlocks && blocksArray.controls.length > 0">
+        <h2 class="section-title">Blocks & Flats</h2>
+        
+        <mat-accordion>
+          <mat-expansion-panel *ngFor="let block of blocksArray.controls; let blockIndex = index">
+            <mat-expansion-panel-header>
+              <mat-panel-title>
+                {{ block.get('blockName')?.value }}
+              </mat-panel-title>
+              <mat-panel-description>
+                {{ block.get('totalFloors')?.value }} Floors
+              </mat-panel-description>
+            </mat-expansion-panel-header>
             
-            <mat-form-field appearance="outline">
-              <mat-label>Flats Per Floor</mat-label>
-              <input matInput formControlName="flatsPerFloor" type="number" min="1" max="20">
-            </mat-form-field>
+            <div class="block-form">
+              <div class="form-row">
+                <mat-form-field appearance="outline">
+                  <mat-label>Block Name *</mat-label>
+                  <input matInput [formControl]="$any(block.get('blockName'))">
+                </mat-form-field>
+              </div>
+              
+              <div class="form-row floors-config">
+                <mat-form-field appearance="outline">
+                  <mat-label>Number of Floors *</mat-label>
+                  <input matInput [formControl]="$any(block.get('totalFloors'))" type="number" min="1" max="100">
+                </mat-form-field>
+                
+                <mat-form-field appearance="outline">
+                  <mat-label>Flats Per Floor *</mat-label>
+                  <input matInput [formControl]="$any(block.get('flatsPerFloor'))" type="number" min="1" max="20">
+                </mat-form-field>
+                
+                <mat-form-field appearance="outline">
+                  <mat-label>Parking Facilities Count</mat-label>
+                  <input matInput [formControl]="$any(block.get('parkingFacilitiesCount'))" type="number" min="0">
+                </mat-form-field>
+                
+                <button type="button" mat-raised-button color="primary" (click)="autoGenerateFloorsForBlock(blockIndex)">
+                  Auto Generate
+                </button>
+              </div>
+              
+              <div class="floors-container">
+                <mat-accordion>
+                  <mat-expansion-panel *ngFor="let floor of getBlockFloorsArray(blockIndex).controls; let floorIndex = index">
+                    <mat-expansion-panel-header>
+                      <mat-panel-title>
+                        Floor {{floor.get('floorNumber')?.value}}
+                      </mat-panel-title>
+                      <mat-panel-description>
+                        {{getFlatsForFloorInBlock(blockIndex, floorIndex).length}} Flats
+                      </mat-panel-description>
+                    </mat-expansion-panel-header>
+                    
+                    <div class="floor-actions">
+                      <button type="button" mat-stroked-button color="primary" (click)="addFlatToExistingFloorInBlock(blockIndex, floorIndex)">
+                        <mat-icon>add</mat-icon> Add Flat
+                      </button>
+                      <button type="button" mat-stroked-button color="warn" (click)="removeFloorFromBlock(blockIndex, floorIndex)" 
+                              *ngIf="getBlockFloorsArray(blockIndex).length > 1">
+                        <mat-icon>delete</mat-icon> Remove Floor
+                      </button>
+                    </div>
+                    
+                    <div class="flats-table-container">
+                      <table mat-table [dataSource]="getFlatsForFloorInBlock(blockIndex, floorIndex)" class="flats-table">
+                        <!-- Flat Number Column -->
+                        <ng-container matColumnDef="flatNumber">
+                          <th mat-header-cell *matHeaderCellDef>Flat No.</th>
+                          <td mat-cell *matCellDef="let flat; let flatIndex = index">
+                            <mat-form-field appearance="outline" class="flat-field">
+                              <input matInput [formControl]="$any(flat.get('flatNumber'))">
+                            </mat-form-field>
+                          </td>
+                        </ng-container>
+                        
+                        <!-- Flat Type Column -->
+                        <ng-container matColumnDef="flatType">
+                          <th mat-header-cell *matHeaderCellDef>Type</th>
+                          <td mat-cell *matCellDef="let flat">
+                            <mat-form-field appearance="outline" class="flat-field">
+                              <mat-select [formControl]="$any(flat.get('flatType'))">
+                                <mat-option *ngFor="let type of flatTypes" [value]="type.value">
+                                  {{type.viewValue}}
+                                </mat-option>
+                              </mat-select>
+                            </mat-form-field>
+                          </td>
+                        </ng-container>
+                        
+                        <!-- Flat Size Column -->
+                        <ng-container matColumnDef="flatSize">
+                          <th mat-header-cell *matHeaderCellDef>Size (sq.ft)</th>
+                          <td mat-cell *matCellDef="let flat">
+                            <mat-form-field appearance="outline" class="flat-field">
+                              <input matInput type="number" [formControl]="$any(flat.get('flatSize'))">
+                            </mat-form-field>
+                          </td>
+                        </ng-container>
+                        
+                        <!-- Flat Status Column -->
+                        <ng-container matColumnDef="flatStatus">
+                          <th mat-header-cell *matHeaderCellDef>Status</th>
+                          <td mat-cell *matCellDef="let flat">
+                            <mat-form-field appearance="outline" class="flat-field">
+                              <mat-select [formControl]="$any(flat.get('flatStatus'))">
+                                <mat-option *ngFor="let status of flatStatuses" [value]="status.value">
+                                  <span [style.color]="status.color">●</span> {{status.viewValue}}
+                                </mat-option>
+                              </mat-select>
+                            </mat-form-field>
+                          </td>
+                        </ng-container>
+                        
+                        <!-- Flat Price Column -->
+                        <ng-container matColumnDef="flatPrice">
+                          <th mat-header-cell *matHeaderCellDef>Price (₹)</th>
+                          <td mat-cell *matCellDef="let flat">
+                            <mat-form-field appearance="outline" class="flat-field">
+                              <input matInput type="number" [formControl]="$any(flat.get('flatPrice'))">
+                            </mat-form-field>
+                          </td>
+                        </ng-container>
+                        
+                        <!-- Actions Column -->
+                        <ng-container matColumnDef="actions">
+                          <th mat-header-cell *matHeaderCellDef>Actions</th>
+                          <td mat-cell *matCellDef="let flat; let flatIndex = index">
+                            <button type="button" mat-icon-button color="warn" 
+                                    (click)="removeFlatFromFloorInBlock(blockIndex, floorIndex, flatIndex)"
+                                    [disabled]="getFlatsForFloorInBlock(blockIndex, floorIndex).length <= 1">
+                              <mat-icon>delete</mat-icon>
+                            </button>
+                          </td>
+                        </ng-container>
+                        
+                        <tr mat-header-row *matHeaderRowDef="['flatNumber', 'flatType', 'flatSize', 'flatStatus', 'flatPrice', 'actions']"></tr>
+                        <tr mat-row *matRowDef="let row; columns: ['flatNumber', 'flatType', 'flatSize', 'flatStatus', 'flatPrice', 'actions'];"></tr>
+                      </table>
+                    </div>
+                  </mat-expansion-panel>
+                </mat-accordion>
+                
+                <div class="add-floor-button">
+                  <button type="button" mat-stroked-button color="primary" (click)="addFloorToBlock(blockIndex)">
+                    <mat-icon>add</mat-icon> Add Floor
+                  </button>
+                </div>
+              </div>
+            </div>
             
-            <button type="button" mat-raised-button color="primary" (click)="autoGenerateFloors()">
-              Auto Generate
+            <div class="block-actions">
+              <button type="button" mat-stroked-button color="warn" (click)="removeBlock(blockIndex)" *ngIf="blocksArray.length > 1">
+                <mat-icon>delete</mat-icon> Remove Block
+              </button>
+            </div>
+          </mat-expansion-panel>
+        </mat-accordion>
+        
+        <div class="add-block-button" *ngIf="blocksArray.controls.length < propertyForm.get('totalBlocks')?.value">
+          <button type="button" mat-stroked-button color="primary" (click)="addBlock()">
+            <mat-icon>add</mat-icon> Add Block
+          </button>
+        </div>
+      </div>
+      
+      <!-- Floors & Flats Configuration (For non-block properties) -->
+      <div class="form-section" *ngIf="!hasBlocks">
+        <h2 class="section-title">Floors & Flats Configuration</h2>
+        
+        <div class="form-row floors-config">
+          <mat-form-field appearance="outline">
+            <mat-label>Total Floors</mat-label>
+            <input matInput formControlName="totalFloors" type="number" min="1" max="100">
+          </mat-form-field>
+          
+          <mat-form-field appearance="outline">
+            <mat-label>Flats Per Floor</mat-label>
+            <input matInput formControlName="flatsPerFloor" type="number" min="1" max="20">
+          </mat-form-field>
+          
+          <button type="button" mat-raised-button color="primary" (click)="autoGenerateFloors()">
+            Auto Generate
+          </button>
+        </div>
+        
+        <!-- Floors and Flats -->
+        <div class="floors-container" *ngIf="showFlatsSection">
+          <mat-accordion>
+            <mat-expansion-panel *ngFor="let floor of floorsArray.controls; let floorIndex = index">
+              <mat-expansion-panel-header>
+                <mat-panel-title>
+                  Floor {{floor.get('floorNumber')?.value}}
+                </mat-panel-title>
+                <mat-panel-description>
+                  {{getFlatsForFloor(floorIndex).length}} Flats
+                </mat-panel-description>
+              </mat-expansion-panel-header>
+              
+              <div class="floor-actions">
+                <button type="button" mat-stroked-button color="primary" (click)="addFlatToExistingFloor(floorIndex)">
+                  <mat-icon>add</mat-icon> Add Flat
+                </button>
+                <button type="button" mat-stroked-button color="warn" (click)="removeFloor(floorIndex)" 
+                        *ngIf="floorsArray.length > 1">
+                  <mat-icon>delete</mat-icon> Remove Floor
+                </button>
+              </div>
+              
+              <div class="flats-table-container">
+                <table mat-table [dataSource]="getFlatsForFloor(floorIndex)" class="flats-table">
+                  <!-- Flat Number Column -->
+                  <ng-container matColumnDef="flatNumber">
+                    <th mat-header-cell *matHeaderCellDef>Flat No.</th>
+                    <td mat-cell *matCellDef="let flat; let flatIndex = index">
+                      <mat-form-field appearance="outline" class="flat-field">
+                        <input matInput [formControl]="$any(flat.get('flatNumber'))">
+                      </mat-form-field>
+                    </td>
+                  </ng-container>
+                  
+                  <!-- Flat Type Column -->
+                  <ng-container matColumnDef="flatType">
+                    <th mat-header-cell *matHeaderCellDef>Type</th>
+                    <td mat-cell *matCellDef="let flat">
+                      <mat-form-field appearance="outline" class="flat-field">
+                        <mat-select [formControl]="$any(flat.get('flatType'))">
+                          <mat-option *ngFor="let type of flatTypes" [value]="type.value">
+                            {{type.viewValue}}
+                          </mat-option>
+                        </mat-select>
+                      </mat-form-field>
+                    </td>
+                  </ng-container>
+                  
+                  <!-- Flat Size Column -->
+                  <ng-container matColumnDef="flatSize">
+                    <th mat-header-cell *matHeaderCellDef>Size (sq.ft)</th>
+                    <td mat-cell *matCellDef="let flat">
+                      <mat-form-field appearance="outline" class="flat-field">
+                        <input matInput type="number" [formControl]="$any(flat.get('flatSize'))">
+                      </mat-form-field>
+                    </td>
+                  </ng-container>
+                  
+                  <!-- Flat Status Column -->
+                  <ng-container matColumnDef="flatStatus">
+                    <th mat-header-cell *matHeaderCellDef>Status</th>
+                    <td mat-cell *matCellDef="let flat">
+                      <mat-form-field appearance="outline" class="flat-field">
+                        <mat-select [formControl]="$any(flat.get('flatStatus'))">
+                          <mat-option *ngFor="let status of flatStatuses" [value]="status.value">
+                            <span [style.color]="status.color">●</span> {{status.viewValue}}
+                          </mat-option>
+                        </mat-select>
+                      </mat-form-field>
+                    </td>
+                  </ng-container>
+                  
+                  <!-- Flat Price Column -->
+                  <ng-container matColumnDef="flatPrice">
+                    <th mat-header-cell *matHeaderCellDef>Price (₹)</th>
+                    <td mat-cell *matCellDef="let flat">
+                      <mat-form-field appearance="outline" class="flat-field">
+                        <input matInput type="number" [formControl]="$any(flat.get('flatPrice'))">
+                      </mat-form-field>
+                    </td>
+                  </ng-container>
+                  
+                  <!-- Actions Column -->
+                  <ng-container matColumnDef="actions">
+                    <th mat-header-cell *matHeaderCellDef>Actions</th>
+                    <td mat-cell *matCellDef="let flat; let flatIndex = index">
+                      <button type="button" mat-icon-button color="warn" 
+                              (click)="removeFlatFromFloor(floorIndex, flatIndex)"
+                              [disabled]="getFlatsForFloor(floorIndex).length <= 1">
+                        <mat-icon>delete</mat-icon>
+                      </button>
+                    </td>
+                  </ng-container>
+                  
+                  <tr mat-header-row *matHeaderRowDef="['flatNumber', 'flatType', 'flatSize', 'flatStatus', 'flatPrice', 'actions']"></tr>
+                  <tr mat-row *matRowDef="let row; columns: ['flatNumber', 'flatType', 'flatSize', 'flatStatus', 'flatPrice', 'actions'];"></tr>
+                </table>
+              </div>
+            </mat-expansion-panel>
+          </mat-accordion>
+          
+          <div class="add-floor-button">
+            <button type="button" mat-stroked-button color="primary" (click)="addFloor()">
+              <mat-icon>add</mat-icon> Add Floor
             </button>
           </div>
+        </div>
+      </div>
+      
+      <!-- Image Upload Section -->
+      <div class="form-section">
+        <h2 class="section-title">Property Images</h2>
+        
+        <div class="image-upload-container">
+          <button type="button" mat-stroked-button color="primary" class="upload-button" (click)="fileInput.click()">
+            <mat-icon>add_photo_alternate</mat-icon>
+            Add Images
+          </button>
+          <input #fileInput type="file" (change)="onFileSelected($event)" style="display: none" multiple accept="image/*">
+          <p class="upload-hint">Upload property images (Max 5 images)</p>
           
-          <!-- Floors and Flats -->
-          <div class="floors-container" *ngIf="showFlatsSection">
-            <mat-accordion>
-              <mat-expansion-panel *ngFor="let floor of floorsArray.controls; let floorIndex = index">
-                <mat-expansion-panel-header>
-                  <mat-panel-title>
-                    Floor {{floor.get('floorNumber')?.value}}
-                  </mat-panel-title>
-                  <mat-panel-description>
-                    {{getFlatsForFloor(floorIndex).length}} Flats
-                  </mat-panel-description>
-                </mat-expansion-panel-header>
-                
-                <div class="floor-actions">
-                  <button type="button" mat-stroked-button color="primary" (click)="addFlatToExistingFloor(floorIndex)">
-                    <mat-icon>add</mat-icon> Add Flat
-                  </button>
-                  <button type="button" mat-stroked-button color="warn" (click)="removeFloor(floorIndex)" 
-                          *ngIf="floorsArray.length > 1">
-                    <mat-icon>delete</mat-icon> Remove Floor
-                  </button>
-                </div>
-                
-                <div class="flats-table-container">
-                  <table mat-table [dataSource]="getFlatsForFloor(floorIndex)" class="flats-table">
-                    <!-- Flat Number Column -->
-                    <ng-container matColumnDef="flatNumber">
-                      <th mat-header-cell *matHeaderCellDef>Flat No.</th>
-                      <td mat-cell *matCellDef="let flat; let flatIndex = index">
-                        <mat-form-field appearance="outline" class="flat-field">
-                          <input matInput [formControl]="flat.get('flatNumber')">
-                        </mat-form-field>
-                      </td>
-                    </ng-container>
-                    
-                    <!-- Flat Type Column -->
-                    <ng-container matColumnDef="flatType">
-                      <th mat-header-cell *matHeaderCellDef>Type</th>
-                      <td mat-cell *matCellDef="let flat">
-                        <mat-form-field appearance="outline" class="flat-field">
-                          <mat-select [formControl]="flat.get('flatType')">
-                            <mat-option *ngFor="let type of flatTypes" [value]="type.value">
-                              {{type.viewValue}}
-                            </mat-option>
-                          </mat-select>
-                        </mat-form-field>
-                      </td>
-                    </ng-container>
-                    
-                    <!-- Flat Size Column -->
-                    <ng-container matColumnDef="flatSize">
-                      <th mat-header-cell *matHeaderCellDef>Size (sq.ft)</th>
-                      <td mat-cell *matCellDef="let flat">
-                        <mat-form-field appearance="outline" class="flat-field">
-                          <input matInput type="number" [formControl]="flat.get('flatSize')">
-                        </mat-form-field>
-                      </td>
-                    </ng-container>
-                    
-                    <!-- Flat Status Column -->
-                    <ng-container matColumnDef="flatStatus">
-                      <th mat-header-cell *matHeaderCellDef>Status</th>
-                      <td mat-cell *matCellDef="let flat">
-                        <mat-form-field appearance="outline" class="flat-field">
-                          <mat-select [formControl]="flat.get('flatStatus')">
-                            <mat-option *ngFor="let status of flatStatuses" [value]="status.value">
-                              <span [style.color]="status.color">●</span> {{status.viewValue}}
-                            </mat-option>
-                          </mat-select>
-                        </mat-form-field>
-                      </td>
-                    </ng-container>
-                    
-                    <!-- Flat Price Column -->
-                    <ng-container matColumnDef="flatPrice">
-                      <th mat-header-cell *matHeaderCellDef>Price (₹)</th>
-                      <td mat-cell *matCellDef="let flat">
-                        <mat-form-field appearance="outline" class="flat-field">
-                          <input matInput type="number" [formControl]="flat.get('flatPrice')">
-                        </mat-form-field>
-                      </td>
-                    </ng-container>
-                    
-                    <!-- Actions Column -->
-                    <ng-container matColumnDef="actions">
-                      <th mat-header-cell *matHeaderCellDef>Actions</th>
-                      <td mat-cell *matCellDef="let flat; let flatIndex = index">
-                        <button type="button" mat-icon-button color="warn" 
-                                (click)="removeFlatFromFloor(floorIndex, flatIndex)"
-                                [disabled]="getFlatsForFloor(floorIndex).length <= 1">
-                          <mat-icon>delete</mat-icon>
-                        </button>
-                      </td>
-                    </ng-container>
-                    
-                    <tr mat-header-row *matHeaderRowDef="['flatNumber', 'flatType', 'flatSize', 'flatStatus', 'flatPrice', 'actions']"></tr>
-                    <tr mat-row *matRowDef="let row; columns: ['flatNumber', 'flatType', 'flatSize', 'flatStatus', 'flatPrice', 'actions'];"></tr>
-                  </table>
-                </div>
-              </mat-expansion-panel>
-            </mat-accordion>
-            
-            <div class="add-floor-button">
-              <button type="button" mat-stroked-button color="primary" (click)="addFloor()">
-                <mat-icon>add</mat-icon> Add Floor
+          <div class="image-previews" *ngIf="previewImages.length > 0">
+            <div class="preview-item" *ngFor="let image of previewImages; let i = index">
+              <img [src]="image.preview" alt="Preview">
+              <button mat-icon-button color="warn" class="remove-image" (click)="removeImage(i)">
+                <mat-icon>close</mat-icon>
               </button>
             </div>
           </div>
         </div>
-        
-        <!-- Image Upload Section -->
-        <div class="form-section">
-          <h2 class="section-title">Property Images</h2>
-          
-          <div class="image-upload-container">
-            <button type="button" mat-stroked-button color="primary" class="upload-button">
-              <mat-icon>add_photo_alternate</mat-icon>
-              Add Image
-            </button>
-            <p class="upload-hint">Upload property images (Max 5 images)</p>
-          </div>
-        </div>
-        
-        <!-- Form Actions -->
-        <div class="form-actions">
-          <button type="button" mat-stroked-button routerLink="/properties">Cancel</button>
-          <button type="submit" mat-raised-button color="primary" [disabled]="isLoading">
-            <mat-spinner diameter="20" *ngIf="isLoading"></mat-spinner>
-            <span *ngIf="!isLoading">Save Property</span>
-          </button>
-        </div>
-      </form>
-    </div>
+      </div>
+      
+      <!-- Form Actions -->
+      <div class="form-actions">
+        <button type="button" mat-stroked-button routerLink="/properties">Cancel</button>
+        <button type="submit" mat-raised-button color="primary" [disabled]="isLoading">
+          <mat-spinner diameter="20" *ngIf="isLoading"></mat-spinner>
+          <span *ngIf="!isLoading">Save Property</span>
+        </button>
+      </div>
+    </form>
   </div>
-  
+</div>

@@ -1,21 +1,23 @@
 const jwt = require("jsonwebtoken")
-const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key"
+
+const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key" // In production, use environment variables
 
 exports.verifyToken = (req, res, next) => {
-  const authHeader = req.headers.authorization
+  const authHeader = req.headers["authorization"]
   const token = authHeader && authHeader.split(" ")[1]
 
   if (!token) {
-    return res.status(401).json({ message: "No token provided" })
+    return res.status(401).json({ message: "Unauthorized" })
   }
 
-  try {
-    const decoded = jwt.verify(token, JWT_SECRET)
-    req.user = decoded
+  jwt.verify(token, JWT_SECRET, (err, user) => {
+    if (err) {
+      return res.status(403).json({ message: "Forbidden" })
+    }
+
+    req.user = user
     next()
-  } catch (error) {
-    return res.status(403).json({ message: "Invalid token" })
-  }
+  })
 }
 
 exports.verifyAdmin = (req, res, next) => {
@@ -23,7 +25,17 @@ exports.verifyAdmin = (req, res, next) => {
     if (req.user.role === "admin") {
       next()
     } else {
-      res.status(403).json({ message: "Requires admin privileges" })
+      res.status(403).json({ message: "Forbidden - Admin access required" })
+    }
+  })
+}
+
+exports.verifyAgent = (req, res, next) => {
+  this.verifyToken(req, res, () => {
+    if (req.user.role === "agent") {
+      next()
+    } else {
+      res.status(403).json({ message: "Forbidden - Agent access required" })
     }
   })
 }
@@ -33,7 +45,27 @@ exports.verifyAgentOrAdmin = (req, res, next) => {
     if (req.user.role === "admin" || req.user.role === "agent") {
       next()
     } else {
-      res.status(403).json({ message: "Requires agent or admin privileges" })
+      res.status(403).json({ message: "Forbidden - Admin or Agent access required" })
+    }
+  })
+}
+
+exports.verifyManager = (req, res, next) => {
+  this.verifyToken(req, res, () => {
+    if (req.user.role === "manager") {
+      next()
+    } else {
+      res.status(403).json({ message: "Forbidden - Manager access required" })
+    }
+  })
+}
+
+exports.verifyManagerOrAdmin = (req, res, next) => {
+  this.verifyToken(req, res, () => {
+    if (req.user.role === "admin" || req.user.role === "manager") {
+      next()
+    } else {
+      res.status(403).json({ message: "Forbidden - Admin or Manager access required" })
     }
   })
 }

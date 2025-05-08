@@ -10,53 +10,64 @@ import { AgentsListComponent } from './dashboard/agents/agents-list/agents-list.
 import { AddAgentComponent } from './dashboard/agents/add-agent/add-agent.component';
 import { AgentDashboardComponent } from './dashboard/agents/agent-dashboard/agent-dashboard.component';
 import { AgentLeadsComponent } from './dashboard/agents/agent-leads/agent-leads.component';
-
+import { UsersListComponent } from './users/users-list/users-list.component';
+import { RoleGuard } from './guards/role.guard';
+import { AuthGuard } from './guards/auth.guard';
 
 const routes: Routes = [
-  {path: '', redirectTo: '/sp', pathMatch: 'full'},
-  {path: 'login', component: LoginComponent},
-  {path: 'forgot-password', component: ForgotPasswordComponent},
-  {path: 'sp', component: SplashScreenComponent},
+  { path: "", component: SplashScreenComponent },
+  { path: "login", component: LoginComponent },
+  { path: "forgot-password", component: ForgotPasswordComponent },
   {
     path: "dashboard",
     component: DashboardComponent,
-    // canActivate: [AuthGuard],
+    canActivate: [AuthGuard, RoleGuard],
+    data: { roles: ["admin"] },
   },
   {
     path: "properties",
     component: PropertiesListComponent,
-    // canActivate: [AuthGuard],
+    canActivate: [AuthGuard, RoleGuard],
+    data: { roles: ["admin"] },
   },
   {
     path: "properties/add",
     component: AddPropertyComponent,
-    // canActivate: [AuthGuard],
+    canActivate: [AuthGuard, RoleGuard],
+    data: { roles: ["admin"] },
   },
   {
     path: "agents",
     component: AgentsListComponent,
-    // canActivate: [AuthGuard, RoleGuard],
-    // data: { roles: ["admin"] },
+    canActivate: [AuthGuard, RoleGuard],
+    data: { roles: ["admin"] },
   },
   {
     path: "agents/add",
     component: AddAgentComponent,
-    // canActivate: [AuthGuard, RoleGuard],
-    // data: { roles: ["admin"] },
+    canActivate: [AuthGuard, RoleGuard],
+    data: { roles: ["admin"] },
+  },
+  {
+    path: "users",
+    component: UsersListComponent,
+    canActivate: [AuthGuard, RoleGuard],
+    data: { roles: ["admin"] },
   },
   {
     path: "agent/dashboard",
     component: AgentDashboardComponent,
-    // canActivate: [AuthGuard, RoleGuard],
-    // data: { roles: ["agent"] },
+    canActivate: [AuthGuard, RoleGuard],
+    data: { roles: ["agent"] },
   },
   {
     path: "agent/leads",
     component: AgentLeadsComponent,
-    // canActivate: [AuthGuard, RoleGuard],
-    // data: { roles: ["agent"] },
-  }
-];
+    canActivate: [AuthGuard, RoleGuard],
+    data: { roles: ["agent"] },
+  },
+  { path: "**", redirectTo: "" },
+]
 
 @NgModule({
   imports: [RouterModule.forRoot(routes)],

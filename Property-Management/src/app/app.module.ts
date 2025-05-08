@@ -27,8 +27,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatChipsModule } from "@angular/material/chips"
 import { MatExpansionModule } from "@angular/material/expansion"
-
-
+import { MatRadioModule } from '@angular/material/radio';
 
 
 // Components
@@ -52,6 +51,8 @@ import { AssignAgentDialogComponent } from './dashboard/agents/assign-agent-dial
 import { AgentDashboardComponent } from './dashboard/agents/agent-dashboard/agent-dashboard.component';
 import { AgentLeadsComponent } from './dashboard/agents/agent-leads/agent-leads.component';
 import { AddLeadDialogComponent } from './dashboard/agents/add-lead-dialog/add-lead-dialog.component';
+import { UsersListComponent } from './users/users-list/users-list.component';
+import { AddUserDialogComponent } from './users/add-user-dialog/add-user-dialog.component';
 
 @NgModule({
   declarations: [
@@ -72,6 +73,8 @@ import { AddLeadDialogComponent } from './dashboard/agents/add-lead-dialog/add-l
     AgentDashboardComponent,
     AgentLeadsComponent,
     AddLeadDialogComponent,
+    UsersListComponent,
+    AddUserDialogComponent,
   ],
   imports: [
     BrowserModule,
@@ -102,6 +105,7 @@ import { AddLeadDialogComponent } from './dashboard/agents/add-lead-dialog/add-l
     MatBadgeModule,
     MatChipsModule,
     MatExpansionModule,
+    MatRadioModule,
   ],
   providers: [
     provideHttpClient(),
