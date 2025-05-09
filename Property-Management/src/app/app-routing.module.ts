@@ -13,6 +13,7 @@ import { AgentLeadsComponent } from './dashboard/agents/agent-leads/agent-leads.
 import { UsersListComponent } from './users/users-list/users-list.component';
 import { RoleGuard } from './guards/role.guard';
 import { AuthGuard } from './guards/auth.guard';
+import { PropertyDetailsComponent } from './dashboard/properties/property-details/property-details.component';
 
 const routes: Routes = [
   { path: "", component: SplashScreenComponent },
@@ -33,6 +34,12 @@ const routes: Routes = [
   {
     path: "properties/add",
     component: AddPropertyComponent,
+    canActivate: [AuthGuard, RoleGuard],
+    data: { roles: ["admin"] },
+  },
+  {
+    path: "properties/:id", // Add this line
+    component: PropertyDetailsComponent,
     canActivate: [AuthGuard, RoleGuard],
     data: { roles: ["admin"] },
   },

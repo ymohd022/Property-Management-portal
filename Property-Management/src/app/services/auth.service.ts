@@ -13,10 +13,13 @@ export class AuthService {
 
   constructor(private http: HttpClient) {}
 
-  // auth.service.ts
-login(email: string, password: string): Observable<any> {
-  return this.http.post<any>(`${this.apiUrl}/auth/login`, { email, password }); // Ensure "auth/login"
-}
+  login(email: string, password: string): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/auth/login`, { email, password }).pipe(
+      tap((response) => {
+        this.setSession(response)
+      }),
+    )
+  }
 
   forgotPassword(email: string): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}/auth/forgot-password`, { email })

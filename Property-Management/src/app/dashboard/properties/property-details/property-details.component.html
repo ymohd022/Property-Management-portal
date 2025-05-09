@@ -1,0 +1,363 @@
+<div class="property-details-container">
+  <div class="page-header">
+    <div class="header-content">
+      <button mat-icon-button (click)="goBack()">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <h1 class="page-title">Property Details</h1>
+    </div>
+    <div class="header-actions">
+      <button mat-raised-button color="primary" (click)="navigateToEdit()">
+        <mat-icon>edit</mat-icon>
+        Edit Property
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="isLoading" class="loading-container">
+    <mat-spinner diameter="40"></mat-spinner>
+    <p>Loading property details...</p>
+  </div>
+
+  <div *ngIf="!isLoading && property" class="property-content">
+    <div class="property-header">
+      <div class="property-title-section">
+        <h2 class="property-name">{{ property.name }}</h2>
+        <span class="property-status" [style.background-color]="getStatusColor(property.status)">
+          {{ property.status }}
+        </span>
+      </div>
+      <p class="property-location">
+        <mat-icon>location_on</mat-icon>
+        {{ property.locality }}
+      </p>
+    </div>
+
+    <mat-tab-group [(selectedIndex)]="activeTab" animationDuration="0ms">
+      <!-- Overview Tab -->
+      <mat-tab label="Overview">
+        <div class="tab-content">
+          <div class="property-overview">
+            <div class="property-images">
+              <div class="primary-image" *ngIf="property.images?.length > 0">
+                <img [src]="getPrimaryImage()" alt="{{ property.name }}">
+              </div>
+              <div class="image-thumbnails" *ngIf="property.images?.length > 1">
+                <div *ngFor="let image of property.images" class="thumbnail" [class.active]="image.is_primary" (click)="setImageAsPrimary(image.id)">
+                  <img [src]="image.image_path" alt="Property image">
+                  <button mat-icon-button color="warn" class="delete-image" (click)="$event.stopPropagation(); deleteImage(image.id)">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div class="property-details-grid">
+              <mat-card>
+                <mat-card-content>
+                  <h3>Basic Information</h3>
+                  <div class="details-row">
+                    <span class="detail-label">Property Type:</span>
+                    <span class="detail-value">{{ property.type }}</span>
+                  </div>
+                  <div class="details-row">
+                    <span class="detail-label">Price:</span>
+                    <span class="detail-value">{{ formatCurrency(property.price) }}</span>
+                  </div>
+                  <div class="details-row">
+                    <span class="detail-label">Total Land Area:</span>
+                    <span class="detail-value">{{ property.total_land_area }}</span>
+                  </div>
+                  <div class="details-row">
+                    <span class="detail-label">Unit Sizes:</span>
+                    <span class="detail-value">{{ property.unit_sizes }}</span>
+                  </div>
+                  <div class="details-row">
+                    <span class="detail-label">Permit Number:</span>
+                    <span class="detail-value">{{ property.permit_number || 'N/A' }}</span>
+                  </div>
+                  <div class="details-row">
+                    <span class="detail-label">Target Market:</span>
+                    <span class="detail-value">{{ property.target_market || 'N/A' }}</span>
+                  </div>
+                </mat-card-content>
+              </mat-card>
+
+              <mat-card>
+                <mat-card-content>
+                  <h3>Occupancy Statistics</h3>
+                  <div class="stats-container">
+                    <div class="stat-item">
+                      <div class="stat-value">{{ property.totalFlats }}</div>
+                      <div class="stat-label">Total Flats</div>
+                    </div>
+                    <div class="stat-item">
+                      <div class="stat-value">{{ property.soldFlats }}</div>
+                      <div class="stat-label">Sold Flats</div>
+                    </div>
+                    <div class="stat-item">
+                      <div class="stat-value">{{ property.availableFlats }}</div>
+                      <div class="stat-label">Available Flats</div>
+                    </div>
+                  </div>
+                  <mat-progress-bar mode="determinate" [value]="(property.soldFlats / property.totalFlats) * 100" color="primary"></mat-progress-bar>
+<div class="progress-labels">
+  <span>{{ ((property.soldFlats / property.totalFlats) * 100) | number:'1.0-0' }}% Sold</span>
+  <span>{{ ((property.availableFlats / property.totalFlats) * 100) | number:'1.0-0' }}% Available</span>
+</div>
+                </mat-card-content>
+              </mat-card>
+
+              <mat-card>
+                <mat-card-content>
+                  <h3>Amenities</h3>
+                  <div class="amenities-list">
+                    <div *ngFor="let amenity of property.amenities" class="amenity-item">
+                      <mat-icon>check_circle</mat-icon>
+                      <span>{{ amenity }}</span>
+                    </div>
+                    <div *ngIf="!property.amenities || property.amenities.length === 0" class="no-amenities">
+                      No amenities listed
+                    </div>
+                  </div>
+                </mat-card-content>
+              </mat-card>
+
+              <mat-card *ngIf="property.remarks">
+                <mat-card-content>
+                  <h3>Remarks</h3>
+                  <p class="remarks-text">{{ property.remarks }}</p>
+                </mat-card-content>
+              </mat-card>
+            </div>
+          </div>
+        </div>
+      </mat-tab>
+
+      <!-- Blocks & Flats Tab -->
+      <mat-tab label="Blocks & Flats">
+        <div class="tab-content">
+          <div *ngIf="property.has_blocks && property.blocks?.length > 0" class="blocks-container">
+            <mat-accordion>
+              <mat-expansion-panel *ngFor="let block of property.blocks">
+                <mat-expansion-panel-header>
+                  <mat-panel-title>
+                    {{ block.block_name }}
+                  </mat-panel-title>
+                  <mat-panel-description>
+                    {{ block.total_floors }} Floors, {{ block.flats_per_floor }} Flats per Floor
+                  </mat-panel-description>
+                </mat-expansion-panel-header>
+
+                <div class="block-details">
+                  <div class="block-info">
+                    <div class="info-item">
+                      <span class="info-label">Total Floors:</span>
+                      <span class="info-value">{{ block.total_floors }}</span>
+                    </div>
+                    <div class="info-item">
+                      <span class="info-label">Flats Per Floor:</span>
+                      <span class="info-value">{{ block.flats_per_floor }}</span>
+                    </div>
+                    <div class="info-item">
+                      <span class="info-label">Parking Facilities:</span>
+                      <span class="info-value">{{ block.parking_facilities_count }}</span>
+                    </div>
+                  </div>
+
+                  <div class="flats-table-container">
+                    <table mat-table [dataSource]="block.flats || []" class="flats-table">
+                      <ng-container matColumnDef="flatNumber">
+                        <th mat-header-cell *matHeaderCellDef>Flat No.</th>
+                        <td mat-cell *matCellDef="let flat">{{ flat.flat_number }}</td>
+                      </ng-container>
+
+                      <ng-container matColumnDef="flatType">
+                        <th mat-header-cell *matHeaderCellDef>Type</th>
+                        <td mat-cell *matCellDef="let flat">{{ flat.flat_type }}</td>
+                      </ng-container>
+
+                      <ng-container matColumnDef="flatSize">
+                        <th mat-header-cell *matHeaderCellDef>Size (sq.ft)</th>
+                        <td mat-cell *matCellDef="let flat">{{ flat.flat_size }}</td>
+                      </ng-container>
+
+                      <ng-container matColumnDef="flatPrice">
+                        <th mat-header-cell *matHeaderCellDef>Price</th>
+                        <td mat-cell *matCellDef="let flat">{{ formatCurrency(flat.flat_price) }}</td>
+                      </ng-container>
+
+                      <ng-container matColumnDef="flatStatus">
+                        <th mat-header-cell *matHeaderCellDef>Status</th>
+                        <td mat-cell *matCellDef="let flat">
+                          <span class="flat-status" [style.background-color]="getFlatStatusColor(flat.status)">
+                            {{ flat.status }}
+                          </span>
+                        </td>
+                      </ng-container>
+
+                      <tr mat-header-row *matHeaderRowDef="['flatNumber', 'flatType', 'flatSize', 'flatPrice', 'flatStatus']"></tr>
+                      <tr mat-row *matRowDef="let row; columns: ['flatNumber', 'flatType', 'flatSize', 'flatPrice', 'flatStatus'];"></tr>
+                    </table>
+                  </div>
+                </div>
+              </mat-expansion-panel>
+            </mat-accordion>
+          </div>
+
+          <div *ngIf="!property.has_blocks && property.flats?.length > 0" class="flats-container">
+            <h3>Flats</h3>
+            <div class="flats-table-container">
+              <table mat-table [dataSource]="property.flats" class="flats-table">
+                <ng-container matColumnDef="flatNumber">
+                  <th mat-header-cell *matHeaderCellDef>Flat No.</th>
+                  <td mat-cell *matCellDef="let flat">{{ flat.flat_number }}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="flatType">
+                  <th mat-header-cell *matHeaderCellDef>Type</th>
+                  <td mat-cell *matCellDef="let flat">{{ flat.flat_type }}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="flatSize">
+                  <th mat-header-cell *matHeaderCellDef>Size (sq.ft)</th>
+                  <td mat-cell *matCellDef="let flat">{{ flat.flat_size }}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="flatPrice">
+                  <th mat-header-cell *matHeaderCellDef>Price</th>
+                  <td mat-cell *matCellDef="let flat">{{ formatCurrency(flat.flat_price) }}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="flatStatus">
+                  <th mat-header-cell *matHeaderCellDef>Status</th>
+                  <td mat-cell *matCellDef="let flat">
+                    <span class="flat-status" [style.background-color]="getFlatStatusColor(flat.status)">
+                      {{ flat.status }}
+                    </span>
+                  </td>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="['flatNumber', 'flatType', 'flatSize', 'flatPrice', 'flatStatus']"></tr>
+                <tr mat-row *matRowDef="let row; columns: ['flatNumber', 'flatType', 'flatSize', 'flatPrice', 'flatStatus'];"></tr>
+              </table>
+            </div>
+          </div>
+
+          <div *ngIf="(!property.has_blocks || !property.blocks || property.blocks.length === 0) && (!property.flats || property.flats.length === 0)" class="no-flats">
+            <p>No flats information available for this property.</p>
+          </div>
+        </div>
+      </mat-tab>
+
+      <!-- Sales & Assignments Tab -->
+      <mat-tab label="Sales & Assignments">
+        <div class="tab-content">
+          <div class="sales-assignments-container">
+            <mat-card>
+              <mat-card-header>
+                <mat-card-title>Agent Assignments</mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <div *ngIf="property.agent_assignments?.length > 0" class="assignments-table-container">
+                  <table mat-table [dataSource]="property.agent_assignments" class="assignments-table">
+                    <ng-container matColumnDef="agent">
+                      <th mat-header-cell *matHeaderCellDef>Agent</th>
+                      <td mat-cell *matCellDef="let assignment">{{ assignment.agent_name }}</td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="block">
+                      <th mat-header-cell *matHeaderCellDef>Block</th>
+                      <td mat-cell *matCellDef="let assignment">{{ assignment.block_name || 'All Blocks' }}</td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="flat">
+                      <th mat-header-cell *matHeaderCellDef>Flat</th>
+                      <td mat-cell *matCellDef="let assignment">{{ assignment.flat_number || 'All Flats' }}</td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="commissionRate">
+                      <th mat-header-cell *matHeaderCellDef>Commission Rate</th>
+                      <td mat-cell *matCellDef="let assignment">{{ assignment.commission_rate }}%</td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="status">
+                      <th mat-header-cell *matHeaderCellDef>Status</th>
+                      <td mat-cell *matCellDef="let assignment">
+                        <span class="status-badge" [ngClass]="'status-' + assignment.status.toLowerCase()">
+                          {{ assignment.status }}
+                        </span>
+                      </td>
+                    </ng-container>
+
+                    <tr mat-header-row *matHeaderRowDef="['agent', 'block', 'flat', 'commissionRate', 'status']"></tr>
+                    <tr mat-row *matRowDef="let row; columns: ['agent', 'block', 'flat', 'commissionRate', 'status'];"></tr>
+                  </table>
+                </div>
+                <div *ngIf="!property.agent_assignments || property.agent_assignments.length === 0" class="no-data">
+                  <p>No agent assignments for this property.</p>
+                </div>
+              </mat-card-content>
+            </mat-card>
+
+            <mat-card>
+              <mat-card-header>
+                <mat-card-title>Sales</mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <div *ngIf="property.sales?.length > 0" class="sales-table-container">
+                  <table mat-table [dataSource]="property.sales" class="sales-table">
+                    <ng-container matColumnDef="id">
+                      <th mat-header-cell *matHeaderCellDef>ID</th>
+                      <td mat-cell *matCellDef="let sale">{{ sale.id }}</td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="client">
+                      <th mat-header-cell *matHeaderCellDef>Client</th>
+                      <td mat-cell *matCellDef="let sale">{{ sale.client_name }}</td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="agent">
+                      <th mat-header-cell *matHeaderCellDef>Agent</th>
+                      <td mat-cell *matCellDef="let sale">{{ sale.agent_name || 'N/A' }}</td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="flat">
+                      <th mat-header-cell *matHeaderCellDef>Flat</th>
+                      <td mat-cell *matCellDef="let sale">{{ sale.flat_number }}</td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="amount">
+                      <th mat-header-cell *matHeaderCellDef>Amount</th>
+                      <td mat-cell *matCellDef="let sale">{{ formatCurrency(sale.sale_amount) }}</td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="date">
+                      <th mat-header-cell *matHeaderCellDef>Date</th>
+                      <td mat-cell *matCellDef="let sale">{{ sale.sale_date | date:'mediumDate' }}</td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="status">
+                      <th mat-header-cell *matHeaderCellDef>Status</th>
+                      <td mat-cell *matCellDef="let sale">
+                        <span class="status-badge" [ngClass]="'status-' + sale.status.toLowerCase()">
+                          {{ sale.status }}
+                        </span>
+                      </td>
+                    </ng-container>
+
+                    <tr mat-header-row *matHeaderRowDef="['id', 'client', 'agent', 'flat', 'amount', 'date', 'status']"></tr>
+                    <tr mat-row *matRowDef="let row; columns: ['id', 'client', 'agent', 'flat', 'amount', 'date', 'status'];"></tr>
+                  </table>
+                </div>
+                <div *ngIf="!property.sales || property.sales.length === 0" class="no-data">
+                  <p>No sales recorded for this property.</p>
+                </div>
+              </mat-card-content>
+            </mat-card>
+          </div>
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+  </div>
+</div>

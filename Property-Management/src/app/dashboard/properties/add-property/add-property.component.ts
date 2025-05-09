@@ -88,6 +88,8 @@ export class AddPropertyComponent implements OnInit {
       amenities: [[]],
       hasBlocks: [false],
       totalBlocks: [1, [Validators.min(1), Validators.max(10)]],
+      totalFloors: [1, [Validators.min(1), Validators.max(100)]],
+      flatsPerFloor: [4, [Validators.min(1), Validators.max(20)]],
       permitNumber: [""],
       targetMarket: [""],
       remarks: [""],
@@ -437,6 +439,7 @@ export class AddPropertyComponent implements OnInit {
         },
         error: (error) => {
           this.isLoading = false
+          console.error("Error adding property:", error)
           this.snackBar.open(
             "Error adding property: " + (error.message || error.error?.message || "Unknown error"),
             "Close",
@@ -449,11 +452,24 @@ export class AddPropertyComponent implements OnInit {
       })
     } else {
       this.propertyForm.markAllAsTouched()
+      console.log("Form validation errors:", this.findInvalidControls())
       this.snackBar.open("Please fill all required fields correctly", "Close", {
         duration: 3000,
         panelClass: ["error-snackbar"],
       })
     }
+  }
+
+  // Helper method to find invalid controls
+  findInvalidControls() {
+    const invalid = []
+    const controls = this.propertyForm.controls
+    for (const name in controls) {
+      if (controls[name].invalid) {
+        invalid.push(name)
+      }
+    }
+    return invalid
   }
 
   uploadImages(propertyId: number) {

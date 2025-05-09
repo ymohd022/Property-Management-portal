@@ -24,7 +24,9 @@ class User {
 
   static async getByEmail(email) {
     try {
+      console.log(`Looking for user with email: ${email}`)
       const [users] = await db.query("SELECT * FROM users WHERE email = ?", [email])
+      console.log(`Found ${users.length} users with email ${email}`)
       return users[0]
     } catch (error) {
       console.error(`Error getting user with email ${email}:`, error)
@@ -226,20 +228,29 @@ class User {
 
   static async verifyCredentials(email, password) {
     try {
+      console.log(`Verifying credentials for email: ${email}`)
       const user = await this.getByEmail(email)
+
       if (!user) {
+        console.log("User not found")
         return null
       }
 
+      console.log("Comparing passwords...")
       const isPasswordValid = await bcrypt.compare(password, user.password)
+      console.log(`Password valid: ${isPasswordValid}`)
+
       if (!isPasswordValid) {
+        console.log("Invalid password")
         return null
       }
 
       if (user.status !== "Active") {
+        console.log("User inactive")
         return { status: "Inactive" }
       }
 
+      console.log("Credentials verified successfully")
       return {
         id: user.id,
         name: user.name,

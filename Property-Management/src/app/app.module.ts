@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import {  HTTP_INTERCEPTORS } from '@angular/common/http';
+import { HttpClientModule } from "@angular/common/http"
 import { ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { provideHttpClient } from '@angular/common/http';
@@ -28,6 +29,7 @@ import { MatBadgeModule } from '@angular/material/badge';
 import { MatChipsModule } from "@angular/material/chips"
 import { MatExpansionModule } from "@angular/material/expansion"
 import { MatRadioModule } from '@angular/material/radio';
+import { FormsModule } from '@angular/forms';
 
 
 // Components
@@ -53,6 +55,8 @@ import { AgentLeadsComponent } from './dashboard/agents/agent-leads/agent-leads.
 import { AddLeadDialogComponent } from './dashboard/agents/add-lead-dialog/add-lead-dialog.component';
 import { UsersListComponent } from './users/users-list/users-list.component';
 import { AddUserDialogComponent } from './users/add-user-dialog/add-user-dialog.component';
+import { TokenInterceptor } from './interceptors/token.interceptor';
+import { PropertyDetailsComponent } from './dashboard/properties/property-details/property-details.component';
 
 @NgModule({
   declarations: [
@@ -75,6 +79,7 @@ import { AddUserDialogComponent } from './users/add-user-dialog/add-user-dialog.
     AddLeadDialogComponent,
     UsersListComponent,
     AddUserDialogComponent,
+    PropertyDetailsComponent,
   ],
   imports: [
     BrowserModule,
@@ -106,10 +111,12 @@ import { AddUserDialogComponent } from './users/add-user-dialog/add-user-dialog.
     MatChipsModule,
     MatExpansionModule,
     MatRadioModule,
+    HttpClientModule,
+    FormsModule,
   ],
   providers: [
     provideHttpClient(),
-    // { provide: HTTP_INTERCEPTORS, useClass: TokenInterceptor, multi: true }
+    { provide: HTTP_INTERCEPTORS, useClass: TokenInterceptor, multi: true }
   ],
   bootstrap: [AppComponent]
 })

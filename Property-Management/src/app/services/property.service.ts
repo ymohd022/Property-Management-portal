@@ -10,42 +10,35 @@ export class PropertyService {
 
   constructor(private http: HttpClient) {}
 
-  getAllProperties(): Observable<any[]> {
-    return this.http.get<any[]>(this.apiUrl)
+  getAllProperties(): Observable<any> {
+    return this.http.get(this.apiUrl)
   }
 
-  getPropertyById(id: number): Observable<any> {
-    return this.http.get<any>(`${this.apiUrl}/${id}`)
+  getPropertyById(id: string): Observable<any> {
+    return this.http.get(`${this.apiUrl}/${id}`)
   }
 
   createProperty(propertyData: any): Observable<any> {
-    return this.http.post<any>(this.apiUrl, propertyData)
+    return this.http.post(this.apiUrl, propertyData)
   }
 
-  updateProperty(id: number, propertyData: any): Observable<any> {
-    return this.http.put<any>(`${this.apiUrl}/${id}`, propertyData)
+  updateProperty(id: string, propertyData: any): Observable<any> {
+    return this.http.put(`${this.apiUrl}/${id}`, propertyData)
   }
 
-  deleteProperty(id: number): Observable<any> {
-    return this.http.delete<any>(`${this.apiUrl}/${id}`)
+  deleteProperty(id: string): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/${id}`)
   }
 
-  // Image upload
   uploadPropertyImage(propertyId: number, formData: FormData): Observable<any> {
-    return this.http.post<any>(`${this.apiUrl}/${propertyId}/images`, formData)
+    return this.http.post(`${this.apiUrl}/${propertyId}/images`, formData)
   }
 
-  // For blocks
-  getPropertyBlocks(propertyId: number): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/${propertyId}/blocks`)
+  setPropertyImageAsPrimary(propertyId: number, imageId: number): Observable<any> {
+    return this.http.put(`${this.apiUrl}/${propertyId}/images/${imageId}/primary`, {})
   }
 
-  // For flats
-  getPropertyFlats(propertyId: number, blockId?: number): Observable<any[]> {
-    let url = `${this.apiUrl}/${propertyId}/flats`
-    if (blockId) {
-      url += `?blockId=${blockId}`
-    }
-    return this.http.get<any[]>(url)
+  deletePropertyImage(propertyId: number, imageId: number): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/${propertyId}/images/${imageId}`)
   }
 }

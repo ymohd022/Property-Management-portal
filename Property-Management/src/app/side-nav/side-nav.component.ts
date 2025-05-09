@@ -1,14 +1,13 @@
 import { Component,  OnInit } from "@angular/core"
-import {  Router, NavigationEnd } from "@angular/router"
-import { filter } from "rxjs/operators"
+import  { Router } from "@angular/router"
 import  { AuthService } from "../services/auth.service"
 
 interface NavItem {
-  label: string
+  name: string
   icon: string
-  route?: string
-  children?: NavItem[]
+  route: string
   expanded?: boolean
+  children?: NavItem[]
 }
 
 
@@ -20,63 +19,26 @@ interface NavItem {
 })
 export class SideNavComponent implements OnInit {
   currentUser: any = null
-  currentRoute = ""
   isAdmin = false
   isAgent = false
+  navItems: NavItem[] = []
 
-  navItems: NavItem[] = [
-    {
-      label: "Dashboard",
-      icon: "dashboard",
-      route: "/dashboard",
-    },
-    {
-      label: "Properties",
-      icon: "apartment",
-      children: [
-        { label: "All Properties", icon: "list", route: "/properties" },
-        { label: "Add Property", icon: "add_circle", route: "/properties/add" },
-      ],
-    },
-    {
-      label: "Clients",
-      icon: "people",
-      children: [
-        { label: "All Clients", icon: "list", route: "/clients" },
-        { label: "Add Client", icon: "person_add", route: "/clients/add" },
-      ],
-    },
-    {
-      label: "Agents",
-      icon: "support_agent",
-      children: [
-        { label: "All Agents", icon: "list", route: "/agents" },
-        { label: "Add Agent", icon: "person_add", route: "/agents/add" },
-      ],
-    },
-    {
-      label: "Users",
-      icon: "admin_panel_settings",
-      route: "/users",
-    },
-    {
-      label: "Payments",
-      icon: "payments",
-      children: [
-        { label: "All Payments", icon: "list", route: "/payments" },
-        { label: "Add Payment", icon: "add_circle", route: "/payments/add" },
-      ],
-    },
-    {
-      label: "Reports",
-      icon: "assessment",
-      route: "/reports",
-    },
-    {
-      label: "Settings",
-      icon: "settings",
-      route: "/settings",
-    },
+  adminMenuItems: NavItem[] = [
+    { name: "Dashboard", icon: "dashboard", route: "/dashboard" },
+    { name: "Properties", icon: "business", route: "/properties" },
+    { name: "Agents", icon: "people", route: "/agents" },
+    { name: "Users", icon: "admin_panel_settings", route: "/users" },
+    { name: "Reports", icon: "assessment", route: "/reports" },
+    { name: "Settings", icon: "settings", route: "/settings" },
+  ]
+
+  agentMenuItems: NavItem[] = [
+    { name: "Dashboard", icon: "dashboard", route: "/agent/dashboard" },
+    { name: "My Properties", icon: "business", route: "/agent/properties" },
+    { name: "Leads", icon: "contacts", route: "/agent/leads" },
+    { name: "Sales", icon: "paid", route: "/agent/sales" },
+    { name: "Commissions", icon: "attach_money", route: "/agent/commissions" },
+    { name: "Profile", icon: "person", route: "/agent/profile" },
   ]
 
   constructor(
@@ -89,26 +51,18 @@ export class SideNavComponent implements OnInit {
     if (this.currentUser) {
       this.isAdmin = this.currentUser.role === "admin"
       this.isAgent = this.currentUser.role === "agent"
+
+      // Set appropriate menu items based on role
+      this.navItems = this.isAdmin ? this.adminMenuItems : this.agentMenuItems
     }
-
-    this.router.events.pipe(filter((event) => event instanceof NavigationEnd)).subscribe((event: any) => {
-      this.currentRoute = event.url
-
-      // Expand the menu item that contains the current route
-      this.navItems.forEach((item) => {
-        if (item.children) {
-          item.expanded = item.children.some((child) => this.currentRoute.startsWith(child.route ?? ""))
-        }
-      })
-    })
-  }
-
-  toggleExpand(item: NavItem) {
-    item.expanded = !item.expanded
   }
 
   isActive(route: string): boolean {
-    return this.currentRoute === route || this.currentRoute.startsWith(route)
+    return this.router.isActive(route, false)
+  }
+
+  toggleExpand(item: NavItem): void {
+    item.expanded = !item.expanded
   }
 
   navigateTo(route: string) {
