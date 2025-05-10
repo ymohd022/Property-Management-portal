@@ -14,6 +14,7 @@ export class PropertyDetailsComponent implements OnInit {
   property: any = null
   isLoading = true
   activeTab = 0
+  serverUrl = "http://localhost:3000" // Add server URL for images
 
   constructor(
     private route: ActivatedRoute,
@@ -34,6 +35,15 @@ export class PropertyDetailsComponent implements OnInit {
     this.propertyService.getPropertyById(this.propertyId).subscribe({
       next: (data) => {
         this.property = data
+
+        // Ensure images have full URLs
+        if (this.property.images && this.property.images.length > 0) {
+          this.property.images = this.property.images.map((img: any) => ({
+            ...img,
+            image_path: this.getFullImageUrl(img.image_path),
+          }))
+        }
+
         this.isLoading = false
       },
       error: (error) => {
@@ -48,27 +58,41 @@ export class PropertyDetailsComponent implements OnInit {
     })
   }
 
+  getFullImageUrl(path: string): string {
+    if (!path) return ""
+    if (path.startsWith("http")) return path
+    return `${this.serverUrl}${path}`
+  }
+
   getPrimaryImage(): string {
-    if (!this.property?.images) return ''
+    if (!this.property?.images || this.property.images.length === 0) return ""
     const primary = this.property.images.find((img: any) => img.is_primary)
-    return primary?.image_path || this.property.images[0]?.image_path || ''
+    return primary?.image_path || this.property.images[0]?.image_path || ""
   }
 
   getStatusColor(status: string): string {
     switch (status) {
-      case "Active": return "#4caf50"
-      case "Upcoming": return "#2196f3"
-      case "Completed": return "#ff9800"
-      default: return "#757575"
+      case "Active":
+        return "#4caf50"
+      case "Upcoming":
+        return "#2196f3"
+      case "Completed":
+        return "#ff9800"
+      default:
+        return "#757575"
     }
   }
 
   getFlatStatusColor(status: string): string {
     switch (status) {
-      case "Available": return "#4caf50"
-      case "Booked": return "#ff9800"
-      case "Sold": return "#f44336"
-      default: return "#757575"
+      case "Available":
+        return "#4caf50"
+      case "Booked":
+        return "#ff9800"
+      case "Sold":
+        return "#f44336"
+      default:
+        return "#757575"
     }
   }
 

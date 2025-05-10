@@ -36,9 +36,9 @@ export class AddPropertyComponent implements OnInit {
   ]
 
   siteStatuses = [
-    { value: "active", viewValue: "Active" },
-    { value: "upcoming", viewValue: "Upcoming" },
-    { value: "completed", viewValue: "Completed" },
+    { value: "Active", viewValue: "Active" },
+    { value: "Upcoming", viewValue: "Upcoming" },
+    { value: "Completed", viewValue: "Completed" },
   ]
 
   flatTypes: FlatType[] = [
@@ -52,9 +52,9 @@ export class AddPropertyComponent implements OnInit {
   ]
 
   flatStatuses: FlatStatus[] = [
-    { value: "available", viewValue: "Available", color: "#4caf50" },
-    { value: "booked", viewValue: "Booked", color: "#ff9800" },
-    { value: "sold", viewValue: "Sold", color: "#f44336" },
+    { value: "Available", viewValue: "Available", color: "#4caf50" },
+    { value: "Booked", viewValue: "Booked", color: "#ff9800" },
+    { value: "Sold", viewValue: "Sold", color: "#f44336" },
   ]
 
   amenities = [
@@ -88,13 +88,13 @@ export class AddPropertyComponent implements OnInit {
       amenities: [[]],
       hasBlocks: [false],
       totalBlocks: [1, [Validators.min(1), Validators.max(10)]],
-      totalFloors: [1, [Validators.min(1), Validators.max(100)]],
-      flatsPerFloor: [4, [Validators.min(1), Validators.max(20)]],
       permitNumber: [""],
       targetMarket: [""],
       remarks: [""],
       blocks: this.fb.array([]),
       floors: this.fb.array([]), // For non-block properties
+      totalFloors: [1, [Validators.min(1), Validators.max(100)]], // Add this for non-block properties
+      flatsPerFloor: [4, [Validators.min(1), Validators.max(20)]], // Add this for non-block properties
     })
   }
 
@@ -203,7 +203,7 @@ export class AddPropertyComponent implements OnInit {
         flatNumber: [`${blockName}-${floorNumber}0${flatIndex}`],
         flatType: ["2bhk", [Validators.required]],
         flatSize: ["", [Validators.required, Validators.min(100)]],
-        flatStatus: ["available", [Validators.required]],
+        flatStatus: ["Available", [Validators.required]],
         flatPrice: ["", [Validators.required, Validators.min(0)]],
       }),
     )
@@ -291,7 +291,7 @@ export class AddPropertyComponent implements OnInit {
         flatNumber: [`${floorNumber}0${flatIndex}`],
         flatType: ["2bhk", [Validators.required]],
         flatSize: ["", [Validators.required, Validators.min(100)]],
-        flatStatus: ["available", [Validators.required]],
+        flatStatus: ["Available", [Validators.required]],
         flatPrice: ["", [Validators.required, Validators.min(0)]],
       }),
     )
@@ -439,7 +439,6 @@ export class AddPropertyComponent implements OnInit {
         },
         error: (error) => {
           this.isLoading = false
-          console.error("Error adding property:", error)
           this.snackBar.open(
             "Error adding property: " + (error.message || error.error?.message || "Unknown error"),
             "Close",
@@ -452,24 +451,11 @@ export class AddPropertyComponent implements OnInit {
       })
     } else {
       this.propertyForm.markAllAsTouched()
-      console.log("Form validation errors:", this.findInvalidControls())
       this.snackBar.open("Please fill all required fields correctly", "Close", {
         duration: 3000,
         panelClass: ["error-snackbar"],
       })
     }
-  }
-
-  // Helper method to find invalid controls
-  findInvalidControls() {
-    const invalid = []
-    const controls = this.propertyForm.controls
-    for (const name in controls) {
-      if (controls[name].invalid) {
-        invalid.push(name)
-      }
-    }
-    return invalid
   }
 
   uploadImages(propertyId: number) {

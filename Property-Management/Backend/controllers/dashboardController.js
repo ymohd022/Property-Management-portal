@@ -96,11 +96,11 @@ exports.getDashboardData = async (req, res) => {
     const dashboardData = {
       kpis: {
         totalSites: propertiesResult[0].totalSites,
-        totalFlats: flatsResult[0].totalFlats,
-        soldFlats: flatsResult[0].soldFlats,
-        availableFlats: flatsResult[0].availableFlats,
-        totalRevenue: salesResult[0].totalRevenue || 0,
-        pendingPayments: pendingPaymentsResult[0].pendingPayments || 0,
+        totalFlats: flatsResult[0].totalFlats || 0,
+        soldFlats: flatsResult[0].soldFlats || 0,
+        availableFlats: flatsResult[0].availableFlats || 0,
+        totalRevenue: salesResult[0]?.totalRevenue || 0,
+        pendingPayments: pendingPaymentsResult[0]?.pendingPayments || 0,
       },
       revenueData: {
         labels: months,
@@ -116,11 +116,11 @@ exports.getDashboardData = async (req, res) => {
         datasets: [
           {
             label: "Sold",
-            data: occupancyData.map((item) => item.soldFlats),
+            data: occupancyData.map((item) => item.soldFlats || 0),
           },
           {
             label: "Available",
-            data: occupancyData.map((item) => item.availableFlats),
+            data: occupancyData.map((item) => item.availableFlats || 0),
           },
         ],
       },
@@ -129,7 +129,7 @@ exports.getDashboardData = async (req, res) => {
         datasets: [
           {
             label: "Sales (in units)",
-            data: agentPerformanceData.map((item) => item.salesCount),
+            data: agentPerformanceData.map((item) => item.salesCount || 0),
           },
         ],
       },
@@ -146,7 +146,7 @@ exports.getDashboardData = async (req, res) => {
     res.json(dashboardData)
   } catch (error) {
     console.error("Error getting dashboard data:", error)
-    res.status(500).json({ message: "Server error" })
+    res.status(500).json({ message: "Server error", error: error.message })
   }
 }
 
@@ -193,11 +193,11 @@ exports.exportDashboardReport = async (req, res) => {
 
     kpiSheet.addRows([
       { metric: "Total Sites", value: propertiesResult[0].totalSites },
-      { metric: "Total Flats", value: flatsResult[0].totalFlats },
-      { metric: "Sold Flats", value: flatsResult[0].soldFlats },
-      { metric: "Available Flats", value: flatsResult[0].availableFlats },
-      { metric: "Total Revenue", value: salesResult[0].totalRevenue || 0 },
-      { metric: "Pending Payments", value: pendingPaymentsResult[0].pendingPayments || 0 },
+      { metric: "Total Flats", value: flatsResult[0].totalFlats || 0 },
+      { metric: "Sold Flats", value: flatsResult[0].soldFlats || 0 },
+      { metric: "Available Flats", value: flatsResult[0].availableFlats || 0 },
+      { metric: "Total Revenue", value: salesResult[0]?.totalRevenue || 0 },
+      { metric: "Pending Payments", value: pendingPaymentsResult[0]?.pendingPayments || 0 },
     ])
 
     // Add a worksheet for monthly revenue
@@ -256,9 +256,9 @@ exports.exportDashboardReport = async (req, res) => {
       const soldPercentage = item.totalFlats > 0 ? ((item.soldFlats / item.totalFlats) * 100).toFixed(2) + "%" : "0%"
       occupancySheet.addRow({
         property: item.name,
-        totalFlats: item.totalFlats,
-        soldFlats: item.soldFlats,
-        availableFlats: item.availableFlats,
+        totalFlats: item.totalFlats || 0,
+        soldFlats: item.soldFlats || 0,
+        availableFlats: item.availableFlats || 0,
         soldPercentage: soldPercentage,
       })
     })
@@ -291,7 +291,7 @@ exports.exportDashboardReport = async (req, res) => {
     agentData.forEach((item) => {
       agentSheet.addRow({
         agent: item.name,
-        salesCount: item.salesCount,
+        salesCount: item.salesCount || 0,
         salesAmount: item.salesAmount || 0,
         commissionAmount: item.commissionAmount || 0,
       })
@@ -353,6 +353,6 @@ exports.exportDashboardReport = async (req, res) => {
     res.end()
   } catch (error) {
     console.error("Error exporting dashboard report:", error)
-    res.status(500).json({ message: "Server error" })
+    res.status(500).json({ message: "Server error", error: error.message })
   }
 }

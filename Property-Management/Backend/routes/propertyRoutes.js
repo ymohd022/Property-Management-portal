@@ -4,33 +4,31 @@ const propertyController = require("../controllers/propertyController")
 const authMiddleware = require("../middleware/authMiddleware")
 const Property = require("../models/property")
 
+// Apply auth middleware to all routes
+router.use(authMiddleware.verifyToken)
+
 // Get all properties
 router.get("/", propertyController.getAllProperties)
 
-// Get a single property
+// Get property by ID
 router.get("/:id", propertyController.getPropertyById)
 
-// Create a new property
-router.post("/", authMiddleware.verifyAdmin, propertyController.createProperty)
+// Create property
+router.post("/", propertyController.createProperty)
 
-// Update a property
-router.put("/:id", authMiddleware.verifyAdmin, propertyController.updateProperty)
+// Update property
+router.put("/:id", propertyController.updateProperty)
 
-// Delete a property
-router.delete("/:id", authMiddleware.verifyAdmin, propertyController.deleteProperty)
+// Delete property
+router.delete("/:id", propertyController.deleteProperty)
 
 // Upload property images
-router.post(
-  "/:id/images",
-  authMiddleware.verifyAdmin,
-  Property.getUploadMiddleware(),
-  propertyController.uploadPropertyImages,
-)
-
-// Delete property image
-router.delete("/:id/images/:imageId", authMiddleware.verifyAdmin, propertyController.deletePropertyImage)
+router.post("/:id/images", Property.getUploadMiddleware(), propertyController.uploadPropertyImages)
 
 // Set property image as primary
-router.put("/:id/images/:imageId/primary", authMiddleware.verifyAdmin, propertyController.setPropertyImageAsPrimary)
+router.put("/:id/images/:imageId/primary", propertyController.setPropertyImageAsPrimary)
+
+// Delete property image
+router.delete("/:id/images/:imageId", propertyController.deletePropertyImage)
 
 module.exports = router

@@ -55,6 +55,7 @@ class Property {
 
   static async getById(id) {
     try {
+      // Get property basic details
       const [properties] = await db.query(
         `
         SELECT p.*, 
@@ -75,6 +76,17 @@ class Property {
 
       const property = properties[0]
 
+      // Parse amenities JSON
+      if (property.amenities) {
+        try {
+          property.amenities = JSON.parse(property.amenities)
+        } catch (e) {
+          property.amenities = []
+        }
+      } else {
+        property.amenities = []
+      }
+
       // Get property images
       const [images] = await db.query("SELECT * FROM property_images WHERE property_id = ?", [id])
       property.images = images
@@ -83,7 +95,50 @@ class Property {
       if (property.has_blocks) {
         const [blocks] = await db.query("SELECT * FROM blocks WHERE property_id = ?", [id])
         property.blocks = blocks
+
+        // Get flats for each block
+        for (const block of property.blocks) {
+          const [flats] = await db.query(
+            "SELECT * FROM flats WHERE property_id = ? AND block_id = ? ORDER BY floor_number, flat_number",
+            [id, block.id],
+          )
+          block.flats = flats
+        }
+      } else {
+        // Get flats directly (no blocks)
+        const [flats] = await db.query("SELECT * FROM flats WHERE property_id = ? ORDER BY floor_number, flat_number", [
+          id,
+        ])
+        property.flats = flats
       }
+
+      // Get agent assignments
+      const [agentAssignments] = await db.query(
+        `
+        SELECT aa.*, a.name as agent_name, b.block_name, f.flat_number
+        FROM agent_assignments aa
+        JOIN agents a ON aa.agent_id = a.id
+        LEFT JOIN blocks b ON aa.block_id = b.id
+        LEFT JOIN flats f ON aa.flat_id = f.id
+        WHERE aa.property_id = ?
+      `,
+        [id],
+      )
+      property.agent_assignments = agentAssignments
+
+      // Get sales
+      const [sales] = await db.query(
+        `
+        SELECT s.*, c.name as client_name, a.name as agent_name, f.flat_number
+        FROM sales s
+        JOIN clients c ON s.client_id = c.id
+        LEFT JOIN agents a ON s.agent_id = a.id
+        JOIN flats f ON s.flat_id = f.id
+        WHERE s.property_id = ?
+      `,
+        [id],
+      )
+      property.sales = sales
 
       return property
     } catch (error) {
@@ -384,8 +439,8 @@ class Property {
 
   // Get upload middleware
   static getUploadMiddleware() {
-    return upload.array("images", 5) // Allow up to 5 images
-  }
+  return upload.array("images", 5) // Allow up to 5 images
+}
 }
 
 module.exports = Property

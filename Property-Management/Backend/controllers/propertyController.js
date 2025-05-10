@@ -1,6 +1,6 @@
 const Property = require("../models/property")
 const path = require("path")
-// const db = require("../db") // Import the database connection
+const db = require("../config/database") // Import the database connection
 
 exports.getAllProperties = async (req, res) => {
   try {
@@ -8,7 +8,7 @@ exports.getAllProperties = async (req, res) => {
     res.json(properties)
   } catch (error) {
     console.error("Error in getAllProperties:", error)
-    res.status(500).json({ message: "Server error" })
+    res.status(500).json({ message: "Server error", error: error.message })
   }
 }
 
@@ -21,7 +21,7 @@ exports.getPropertyById = async (req, res) => {
     res.json(property)
   } catch (error) {
     console.error("Error in getPropertyById:", error)
-    res.status(500).json({ message: "Server error" })
+    res.status(500).json({ message: "Server error", error: error.message })
   }
 }
 
@@ -31,7 +31,7 @@ exports.createProperty = async (req, res) => {
     res.status(201).json({ id: propertyId, message: "Property created successfully" })
   } catch (error) {
     console.error("Error in createProperty:", error)
-    res.status(500).json({ message: "Server error" })
+    res.status(500).json({ message: "Server error", error: error.message })
   }
 }
 
@@ -44,7 +44,7 @@ exports.updateProperty = async (req, res) => {
     res.json({ message: "Property updated successfully" })
   } catch (error) {
     console.error("Error in updateProperty:", error)
-    res.status(500).json({ message: "Server error" })
+    res.status(500).json({ message: "Server error", error: error.message })
   }
 }
 
@@ -57,7 +57,7 @@ exports.deleteProperty = async (req, res) => {
     res.json({ message: "Property deleted successfully" })
   } catch (error) {
     console.error("Error in deleteProperty:", error)
-    res.status(500).json({ message: "Server error" })
+    res.status(500).json({ message: "Server error", error: error.message })
   }
 }
 
@@ -97,7 +97,7 @@ exports.uploadPropertyImages = async (req, res) => {
     })
   } catch (error) {
     console.error("Error in uploadPropertyImages:", error)
-    res.status(500).json({ message: "Server error" })
+    res.status(500).json({ message: "Server error", error: error.message })
   }
 }
 
@@ -110,7 +110,7 @@ exports.deletePropertyImage = async (req, res) => {
     res.json({ message: "Image deleted successfully" })
   } catch (error) {
     console.error("Error in deletePropertyImage:", error)
-    res.status(500).json({ message: "Server error" })
+    res.status(500).json({ message: "Server error", error: error.message })
   }
 }
 
@@ -140,6 +140,6 @@ exports.setPropertyImageAsPrimary = async (req, res) => {
     res.json({ message: "Image set as primary successfully" })
   } catch (error) {
     console.error("Error in setPropertyImageAsPrimary:", error)
-    res.status(500).json({ message: "Server error" })
+    res.status(500).json({ message: "Server error", error: error.message })
   }
 }
