@@ -38,8 +38,55 @@ class AgentAssignment {
     }
   }
 
+  static async getByAgentId(agentId) {
+    try {
+      const [assignments] = await db.query(
+        `
+        SELECT aa.*, 
+               a.name as agent_name, 
+               p.name as property_name, 
+               p.locality as property_location,
+               f.id as flat_id, 
+               f.flat_number, 
+               f.flat_type, 
+               f.flat_size,
+               f.flat_price,
+               f.status as flat_status
+        FROM agent_assignments aa
+        JOIN agents a ON aa.agent_id = a.id
+        JOIN properties p ON aa.property_id = p.id
+        LEFT JOIN flats f ON aa.flat_id = f.id
+        WHERE aa.agent_id = ?
+        ORDER BY aa.assignment_date DESC
+      `,
+        [agentId],
+      )
+      return assignments
+    } catch (error) {
+      console.error(`Error getting agent assignments for agent ${agentId}:`, error)
+      throw error
+    }
+  }
+
   static async create(assignmentData) {
     try {
+      // Validate that the property exists
+      const [properties] = await db.query("SELECT * FROM properties WHERE id = ?", [assignmentData.propertyId])
+      if (properties.length === 0) {
+        throw new Error("Property not found")
+      }
+
+      // Validate that the flat exists and belongs to the property if a flat ID is provided
+      if (assignmentData.flatId) {
+        const [flats] = await db.query("SELECT * FROM flats WHERE id = ? AND property_id = ?", [
+          assignmentData.flatId,
+          assignmentData.propertyId,
+        ])
+        if (flats.length === 0) {
+          throw new Error("Flat not found or does not belong to the specified property")
+        }
+      }
+
       const [result] = await db.query(
         `INSERT INTO agent_assignments (
           agent_id, property_id, flat_id, commission_rate, notes, assignment_date

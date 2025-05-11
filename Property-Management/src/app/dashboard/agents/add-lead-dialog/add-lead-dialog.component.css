@@ -1,16 +1,15 @@
 .form-row {
-    margin-bottom: 16px;
-  }
-  
-  .form-field {
-    width: 100%;
-  }
-  
-  mat-dialog-content {
-    min-height: 300px;
-  }
-  
-  mat-dialog-actions {
-    padding: 16px 0;
-  }
-  
+  margin-bottom: 16px;
+}
+
+.form-field {
+  width: 100%;
+}
+
+.error-message {
+  color: #f44336;
+  margin-top: 16px;
+  padding: 8px;
+  border-radius: 4px;
+  background-color: rgba(244, 67, 54, 0.1);
+}

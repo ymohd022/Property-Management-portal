@@ -4,6 +4,10 @@
     <strong>Agent:</strong> {{ data.agent.name }} ({{ data.agent.email }})
   </p>
   
+  <div *ngIf="errorMessage" class="error-message">
+    {{ errorMessage }}
+  </div>
+  
   <form [formGroup]="assignForm">
     <div class="form-row">
       <mat-form-field appearance="outline" class="form-field">
@@ -11,7 +15,7 @@
         <mat-select formControlName="propertyId" (selectionChange)="onPropertyChange()">
           <mat-option *ngIf="loadingProperties">Loading properties...</mat-option>
           <mat-option *ngFor="let property of properties" [value]="property.id">
-            {{ property.name }} ({{ property.location }})
+            {{ property.name }} ({{ property.locality || property.location }})
           </mat-option>
         </mat-select>
         <mat-error *ngIf="assignForm.get('propertyId')?.hasError('required')">
@@ -31,8 +35,9 @@
           <mat-option *ngIf="!loadingFlats && flats.length === 0 && !assignForm.get('propertyId')?.value">
             Please select a property first
           </mat-option>
+          <mat-option [value]="null">All Flats</mat-option>
           <mat-option *ngFor="let flat of flats" [value]="flat.id">
-            Flat {{ flat.flatNumber }} ({{ flat.type }}) - {{ flat.status }}
+            Flat {{ flat.flat_number || flat.flatNumber }} ({{ flat.flat_type || flat.flatType }}) - {{ flat.status }}
           </mat-option>
         </mat-select>
       </mat-form-field>

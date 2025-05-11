@@ -19,6 +19,7 @@ const agentAssignmentRoutes = require("./routes/agentAssignmentRoutes")
 const propertyRoutes = require("./routes/propertyRoutes")
 const userRoutes = require("./routes/userRoutes")
 const dashboardRoutes = require("./routes/dashboardRoutes")
+const paymentRoutes = require("./routes/paymentRoutes")
 
 // Middleware
 app.use(
@@ -47,6 +48,7 @@ app.use("/api/agent-assignments", agentAssignmentRoutes)
 app.use("/api/properties", propertyRoutes)
 app.use("/api/users", userRoutes)
 app.use("/api/dashboard", dashboardRoutes)
+app.use("/api/payments", paymentRoutes)
 
 // Authentication routes
 app.post("/api/auth/login", async (req, res) => {

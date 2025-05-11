@@ -14,6 +14,8 @@ import { UsersListComponent } from './users/users-list/users-list.component';
 import { RoleGuard } from './guards/role.guard';
 import { AuthGuard } from './guards/auth.guard';
 import { PropertyDetailsComponent } from './dashboard/properties/property-details/property-details.component';
+import { EditPropertyComponent } from './dashboard/properties/edit-property/edit-property.component';
+import { PaymentsListComponent } from './payments/payments-list/payments-list.component';
 
 const routes: Routes = [
   { path: "", component: SplashScreenComponent },
@@ -38,8 +40,20 @@ const routes: Routes = [
     data: { roles: ["admin"] },
   },
   {
+    path: "properties/edit/:id",
+    component: EditPropertyComponent,
+    canActivate: [AuthGuard, RoleGuard],
+    data: { roles: ["admin"] },
+  },
+  {
     path: "properties/:id", // Add this line
     component: PropertyDetailsComponent,
+    canActivate: [AuthGuard, RoleGuard],
+    data: { roles: ["admin"] },
+  },
+  {
+    path: "paymentlist", // Add this line
+    component: PaymentsListComponent,
     canActivate: [AuthGuard, RoleGuard],
     data: { roles: ["admin"] },
   },

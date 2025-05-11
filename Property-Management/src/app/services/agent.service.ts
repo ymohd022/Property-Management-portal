@@ -41,7 +41,7 @@ export class AgentService {
   }
 
   getAssignedProperties(agentId: number): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/agents/${agentId}/properties`)
+    return this.http.get<any[]>(`${this.apiUrl}/agent-assignments/agent/${agentId}`)
   }
 
   getAgentLeads(agentId: number): Observable<any[]> {

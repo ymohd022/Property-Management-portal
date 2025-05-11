@@ -25,6 +25,19 @@ exports.getPropertyById = async (req, res) => {
   }
 }
 
+exports.getFlatsForProperty = async (req, res) => {
+  try {
+    const propertyId = req.params.id
+    const [flats] = await db.query("SELECT * FROM flats WHERE property_id = ? ORDER BY floor_number, flat_number", [
+      propertyId,
+    ])
+    res.json(flats)
+  } catch (error) {
+    console.error("Error in getFlatsForProperty:", error)
+    res.status(500).json({ message: "Server error", error: error.message })
+  }
+}
+
 exports.createProperty = async (req, res) => {
   try {
     const propertyId = await Property.create(req.body)

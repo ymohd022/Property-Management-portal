@@ -38,8 +38,45 @@ class Lead {
     }
   }
 
+  static async getByAgentId(agentId) {
+    try {
+      const [leads] = await db.query(
+        `
+        SELECT l.*, p.name as property_name, f.flat_number
+        FROM leads l
+        LEFT JOIN properties p ON l.property_id = p.id
+        LEFT JOIN flats f ON l.flat_id = f.id
+        WHERE l.agent_id = ?
+        ORDER BY l.created_at DESC
+      `,
+        [agentId],
+      )
+      return leads
+    } catch (error) {
+      console.error(`Error getting leads for agent ${agentId}:`, error)
+      throw error
+    }
+  }
+
   static async create(leadData) {
     try {
+      // Validate that the property exists
+      const [properties] = await db.query("SELECT * FROM properties WHERE id = ?", [leadData.propertyId])
+      if (properties.length === 0) {
+        throw new Error("Property not found")
+      }
+
+      // Validate that the flat exists and belongs to the property if a flat ID is provided
+      if (leadData.flatId) {
+        const [flats] = await db.query("SELECT * FROM flats WHERE id = ? AND property_id = ?", [
+          leadData.flatId,
+          leadData.propertyId,
+        ])
+        if (flats.length === 0) {
+          throw new Error("Flat not found or does not belong to the specified property")
+        }
+      }
+
       const [result] = await db.query(
         `INSERT INTO leads (
           agent_id, client_name, client_email, client_phone, 

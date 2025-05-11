@@ -57,6 +57,10 @@ import { UsersListComponent } from './users/users-list/users-list.component';
 import { AddUserDialogComponent } from './users/add-user-dialog/add-user-dialog.component';
 import { TokenInterceptor } from './interceptors/token.interceptor';
 import { PropertyDetailsComponent } from './dashboard/properties/property-details/property-details.component';
+import { ConfirmDialogComponent } from './shared/confirm-dialog/confirm-dialog.component';
+import { EditPropertyComponent } from './dashboard/properties/edit-property/edit-property.component';
+import { PaymentsListComponent } from './payments/payments-list/payments-list.component';
+import { AddPaymentDialogComponent } from './payments/add-payment-dialog/add-payment-dialog.component';
 
 @NgModule({
   declarations: [
@@ -80,6 +84,10 @@ import { PropertyDetailsComponent } from './dashboard/properties/property-detail
     UsersListComponent,
     AddUserDialogComponent,
     PropertyDetailsComponent,
+    ConfirmDialogComponent,
+    EditPropertyComponent,
+    PaymentsListComponent,
+    AddPaymentDialogComponent,
   ],
   imports: [
     BrowserModule,

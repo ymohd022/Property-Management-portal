@@ -3,17 +3,8 @@ import { MatTableDataSource } from "@angular/material/table"
 import  { Router } from "@angular/router"
 import  { PropertyService } from "../../../services/property.service"
 import  { MatSnackBar } from "@angular/material/snack-bar"
-
-interface Property {
-  id: string
-  name: string
-  location: string
-  type: string
-  totalFlats: number
-  soldFlats: number
-  availableFlats: number
-  status: string
-}
+import  { MatDialog } from "@angular/material/dialog"
+import { ConfirmDialogComponent } from "../../../shared/confirm-dialog/confirm-dialog.component"
 
 interface Property {
   id: string
@@ -50,6 +41,7 @@ export class PropertiesListComponent implements OnInit {
     private propertyService: PropertyService,
     private router: Router,
     private snackBar: MatSnackBar,
+    private dialog: MatDialog,
   ) {}
 
   ngOnInit() {
@@ -163,26 +155,53 @@ export class PropertiesListComponent implements OnInit {
   }
 
   editProperty(propertyId: string) {
-    this.router.navigate(["/properties/edit", propertyId])
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      width: "400px",
+      data: {
+        title: "Edit Property",
+        message:
+          "Are you sure you want to edit this property? This will allow you to modify all property details including images.",
+        confirmText: "Edit",
+        cancelText: "Cancel",
+      },
+    })
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        this.router.navigate(["/properties/edit", propertyId])
+      }
+    })
   }
 
   deleteProperty(propertyId: string) {
-    if (confirm("Are you sure you want to delete this property?")) {
-      this.propertyService.deleteProperty(propertyId).subscribe({
-        next: () => {
-          this.loadProperties()
-          this.snackBar.open("Property deleted successfully", "Close", {
-            duration: 3000,
-          })
-        },
-        error: (error) => {
-          console.error("Error deleting property:", error)
-          this.snackBar.open("Error deleting property", "Close", {
-            duration: 3000,
-            panelClass: ["error-snackbar"],
-          })
-        },
-      })
-    }
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      width: "400px",
+      data: {
+        title: "Delete Property",
+        message: "Are you sure you want to delete this property? This action cannot be undone.",
+        confirmText: "Delete",
+        cancelText: "Cancel",
+      },
+    })
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        this.propertyService.deleteProperty(propertyId).subscribe({
+          next: () => {
+            this.loadProperties()
+            this.snackBar.open("Property deleted successfully", "Close", {
+              duration: 3000,
+            })
+          },
+          error: (error) => {
+            console.error("Error deleting property:", error)
+            this.snackBar.open("Error deleting property", "Close", {
+              duration: 3000,
+              panelClass: ["error-snackbar"],
+            })
+          },
+        })
+      }
+    })
   }
 }

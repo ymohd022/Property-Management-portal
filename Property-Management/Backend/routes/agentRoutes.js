@@ -3,18 +3,34 @@ const router = express.Router()
 const agentController = require("../controllers/agentController")
 const authMiddleware = require("../middleware/authMiddleware")
 
-// Admin routes
-router.get("/", authMiddleware.verifyAdmin, agentController.getAllAgents)
-router.get("/:id", authMiddleware.verifyAdmin, agentController.getAgentById)
-router.post("/", authMiddleware.verifyAdmin, agentController.createAgent)
-router.put("/:id", authMiddleware.verifyAdmin, agentController.updateAgent)
-router.patch("/:id/status", authMiddleware.verifyAdmin, agentController.updateAgentStatus)
+// Apply auth middleware to all routes
+router.use(authMiddleware.verifyToken)
 
-// Agent routes
-router.get("/:id/dashboard", authMiddleware.verifyAgentOrAdmin, agentController.getAgentDashboard)
-router.get("/:id/properties", authMiddleware.verifyAgentOrAdmin, agentController.getAgentProperties)
-router.get("/:id/leads", authMiddleware.verifyAgentOrAdmin, agentController.getAgentLeads)
-router.get("/:id/sales", authMiddleware.verifyAgentOrAdmin, agentController.getAgentSales)
-router.get("/:id/commissions", authMiddleware.verifyAgentOrAdmin, agentController.getAgentCommissions)
+// Get all agents
+router.get("/", agentController.getAllAgents)
+
+// Get agent by ID (fixed route)
+router.get("/:id", agentController.getAgentById)
+
+// Create new agent
+router.post("/", agentController.createAgent)
+
+// Update agent
+router.put("/:id", agentController.updateAgent)
+
+// Update agent status
+router.patch("/:id/status", agentController.updateAgentStatus)
+
+// Get agent dashboard data
+router.get("/:id/dashboard", agentController.getAgentDashboard)
+
+// Get agent leads
+router.get("/:id/leads", agentController.getAgentLeads)
+
+// Get agent sales
+router.get("/:id/sales", agentController.getAgentSales)
+
+// Get agent commissions
+router.get("/:id/commissions", agentController.getAgentCommissions)
 
 module.exports = router

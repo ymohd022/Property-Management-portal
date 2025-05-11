@@ -1,7 +1,8 @@
 import { Component, Inject,  OnInit } from "@angular/core"
 import {  FormBuilder,  FormGroup, Validators } from "@angular/forms"
 import { MAT_DIALOG_DATA,  MatDialogRef } from "@angular/material/dialog"
-import { AgentService } from "../../../services/agent.service"
+import  { AgentService } from "../../../services/agent.service"
+import  { MatSnackBar } from "@angular/material/snack-bar"
 
 @Component({
   selector: 'app-assign-agent-dialog',
@@ -15,11 +16,13 @@ export class AssignAgentDialogComponent implements OnInit {
   flats: any[] = []
   isLoading = false
   loadingProperties = true
-  loadingFlats = false;
+  loadingFlats = false
+  errorMessage = "";
 
   constructor(
     private fb: FormBuilder,
     private agentService: AgentService,
+    private snackBar: MatSnackBar,
     public dialogRef: MatDialogRef<AssignAgentDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: { agent: any }
   ) {
@@ -30,8 +33,8 @@ export class AssignAgentDialogComponent implements OnInit {
         this.data.agent.commissionRate || 5,
         [Validators.required, Validators.min(0), Validators.max(100)],
       ],
-      notes: [""],
-    })
+      notes: [''],
+    });
   }
 
   ngOnInit() {
@@ -48,6 +51,10 @@ export class AssignAgentDialogComponent implements OnInit {
       error: (error) => {
         console.error("Error loading properties:", error)
         this.loadingProperties = false
+        this.snackBar.open("Error loading properties", "Close", {
+          duration: 3000,
+          panelClass: ["error-snackbar"],
+        })
 
         // Load mock data for demo
         this.properties = [
@@ -76,15 +83,19 @@ export class AssignAgentDialogComponent implements OnInit {
       error: (error) => {
         console.error("Error loading flats:", error)
         this.loadingFlats = false
+        this.snackBar.open("Error loading flats", "Close", {
+          duration: 3000,
+          panelClass: ["error-snackbar"],
+        })
 
         // Load mock data for demo
         this.flats = [
-          { id: 101, flatNumber: "101", type: "2BHK", status: "Available" },
-          { id: 102, flatNumber: "102", type: "3BHK", status: "Available" },
-          { id: 103, flatNumber: "103", type: "2BHK", status: "Booked" },
-          { id: 104, flatNumber: "104", type: "3BHK", status: "Available" },
-          { id: 201, flatNumber: "201", type: "2BHK", status: "Sold" },
-          { id: 202, flatNumber: "202", type: "3BHK", status: "Available" },
+          { id: 101, flat_number: "101", flat_type: "2BHK", status: "Available" },
+          { id: 102, flat_number: "102", flat_type: "3BHK", status: "Available" },
+          { id: 103, flat_number: "103", flat_type: "2BHK", status: "Booked" },
+          { id: 104, flat_number: "104", flat_type: "3BHK", status: "Available" },
+          { id: 201, flat_number: "201", flat_type: "2BHK", status: "Sold" },
+          { id: 202, flat_number: "202", flat_type: "3BHK", status: "Available" },
         ]
       },
     })
@@ -99,6 +110,8 @@ export class AssignAgentDialogComponent implements OnInit {
   onSubmit() {
     if (this.assignForm.valid) {
       this.isLoading = true
+      this.errorMessage = ""
+
       const assignmentData = {
         agentId: this.data.agent.id,
         ...this.assignForm.value,
@@ -107,14 +120,19 @@ export class AssignAgentDialogComponent implements OnInit {
       this.agentService.assignAgent(assignmentData).subscribe({
         next: () => {
           this.isLoading = false
+          this.snackBar.open("Agent assigned successfully", "Close", {
+            duration: 3000,
+          })
           this.dialogRef.close(true)
         },
         error: (error) => {
           console.error("Error assigning agent:", error)
           this.isLoading = false
-
-          // For demo, close dialog anyway
-          this.dialogRef.close(true)
+          this.errorMessage = error.error?.message || "Failed to assign agent. Please try again."
+          this.snackBar.open(this.errorMessage, "Close", {
+            duration: 5000,
+            panelClass: ["error-snackbar"],
+          })
         },
       })
     }
@@ -124,3 +142,4 @@ export class AssignAgentDialogComponent implements OnInit {
     this.dialogRef.close()
   }
 }
+

@@ -6,7 +6,7 @@ exports.getAllAssignments = async (req, res) => {
     res.json(assignments)
   } catch (error) {
     console.error("Error in getAllAssignments:", error)
-    res.status(500).json({ message: "Server error" })
+    res.status(500).json({ message: "Server error", error: error.message })
   }
 }
 
@@ -19,7 +19,24 @@ exports.getAssignmentById = async (req, res) => {
     res.json(assignment)
   } catch (error) {
     console.error("Error in getAssignmentById:", error)
-    res.status(500).json({ message: "Server error" })
+    res.status(500).json({ message: "Server error", error: error.message })
+  }
+}
+
+exports.getAssignmentsByAgentId = async (req, res) => {
+  try {
+    const agentId = req.params.agentId
+
+    // Verify the agent is accessing their own data or admin is accessing
+    if (req.user.role !== "admin" && req.user.id !== Number.parseInt(agentId)) {
+      return res.status(403).json({ message: "Unauthorized" })
+    }
+
+    const assignments = await AgentAssignment.getByAgentId(agentId)
+    res.json(assignments)
+  } catch (error) {
+    console.error("Error in getAssignmentsByAgentId:", error)
+    res.status(500).json({ message: "Server error", error: error.message })
   }
 }
 
@@ -43,7 +60,7 @@ exports.createAssignment = async (req, res) => {
     res.status(201).json({ id: assignmentId, message: "Assignment created successfully" })
   } catch (error) {
     console.error("Error in createAssignment:", error)
-    res.status(500).json({ message: "Server error" })
+    res.status(500).json({ message: "Server error", error: error.message })
   }
 }
 
@@ -56,7 +73,7 @@ exports.updateAssignment = async (req, res) => {
     res.json({ message: "Assignment updated successfully" })
   } catch (error) {
     console.error("Error in updateAssignment:", error)
-    res.status(500).json({ message: "Server error" })
+    res.status(500).json({ message: "Server error", error: error.message })
   }
 }
 
@@ -69,6 +86,6 @@ exports.deleteAssignment = async (req, res) => {
     res.json({ message: "Assignment deleted successfully" })
   } catch (error) {
     console.error("Error in deleteAssignment:", error)
-    res.status(500).json({ message: "Server error" })
+    res.status(500).json({ message: "Server error", error: error.message })
   }
 }

@@ -1,7 +1,8 @@
 import { Component, Inject,  OnInit } from "@angular/core"
 import {  FormBuilder,  FormGroup, Validators } from "@angular/forms"
 import { MAT_DIALOG_DATA,  MatDialogRef } from "@angular/material/dialog"
-import { AgentService } from "../../../services/agent.service"
+import  { AgentService } from "../../../services/agent.service"
+import  { MatSnackBar } from "@angular/material/snack-bar"
 
 @Component({
   selector: 'app-add-lead-dialog',
@@ -15,22 +16,24 @@ export class AddLeadDialogComponent implements OnInit {
   flats: any[] = []
   isLoading = false
   loadingProperties = true
-  loadingFlats = false;
+  loadingFlats = false
+  errorMessage = "";
 
   constructor(
     private fb: FormBuilder,
     private agentService: AgentService,
+    private snackBar: MatSnackBar,
     public dialogRef: MatDialogRef<AddLeadDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: { agentId: number }
   ) {
     this.leadForm = this.fb.group({
-      clientName: ['', Validators.required],
-      clientEmail: ['', [Validators.required, Validators.email]],
-      clientPhone: ['', [Validators.required, Validators.pattern("^[0-9+\\s-]{10,15}$")]],
-      propertyId: ['', Validators.required],
+      clientName: ["", Validators.required],
+      clientEmail: ["", [Validators.required, Validators.email]],
+      clientPhone: ["", [Validators.required, Validators.pattern("^[0-9+\\s-]{10,15}$")]],
+      propertyId: ["", Validators.required],
       flatId: [""],
       notes: [""],
-    })
+    });
   }
 
   ngOnInit() {
@@ -40,13 +43,28 @@ export class AddLeadDialogComponent implements OnInit {
   loadProperties() {
     this.loadingProperties = true
     this.agentService.getAssignedProperties(this.data.agentId).subscribe({
-      next: (properties) => {
-        this.properties = properties
+      next: (assignments) => {
+        // Extract unique properties from assignments
+        const propertyMap = new Map()
+        assignments.forEach((assignment) => {
+          if (!propertyMap.has(assignment.property_id)) {
+            propertyMap.set(assignment.property_id, {
+              id: assignment.property_id,
+              name: assignment.property_name,
+              location: assignment.property_location,
+            })
+          }
+        })
+        this.properties = Array.from(propertyMap.values())
         this.loadingProperties = false
       },
       error: (error) => {
         console.error("Error loading properties:", error)
         this.loadingProperties = false
+        this.snackBar.open("Error loading properties", "Close", {
+          duration: 3000,
+          panelClass: ["error-snackbar"],
+        })
 
         // Load mock data for demo
         this.properties = [
@@ -73,15 +91,19 @@ export class AddLeadDialogComponent implements OnInit {
       error: (error) => {
         console.error("Error loading flats:", error)
         this.loadingFlats = false
+        this.snackBar.open("Error loading flats", "Close", {
+          duration: 3000,
+          panelClass: ["error-snackbar"],
+        })
 
         // Load mock data for demo
         this.flats = [
-          { id: 101, flatNumber: "101", type: "2BHK", status: "Available" },
-          { id: 102, flatNumber: "102", type: "3BHK", status: "Available" },
-          { id: 103, flatNumber: "103", type: "2BHK", status: "Booked" },
-          { id: 104, flatNumber: "104", type: "3BHK", status: "Available" },
-          { id: 201, flatNumber: "201", type: "2BHK", status: "Sold" },
-          { id: 202, flatNumber: "202", type: "3BHK", status: "Available" },
+          { id: 101, flat_number: "101", flat_type: "2BHK", status: "Available" },
+          { id: 102, flat_number: "102", flat_type: "3BHK", status: "Available" },
+          { id: 103, flat_number: "103", flat_type: "2BHK", status: "Booked" },
+          { id: 104, flat_number: "104", flat_type: "3BHK", status: "Available" },
+          { id: 201, flat_number: "201", flat_type: "2BHK", status: "Sold" },
+          { id: 202, flat_number: "202", flat_type: "3BHK", status: "Available" },
         ]
       },
     })
@@ -96,26 +118,35 @@ export class AddLeadDialogComponent implements OnInit {
   onSubmit() {
     if (this.leadForm.valid) {
       this.isLoading = true
+      this.errorMessage = ""
+
       const leadData = {
         agentId: this.data.agentId,
         ...this.leadForm.value,
         status: "Active",
-        date: new Date().toISOString().split("T")[0],
       }
 
       this.agentService.addLead(leadData).subscribe({
         next: () => {
           this.isLoading = false
           this.dialogRef.close(true)
+          this.snackBar.open("Lead added successfully", "Close", {
+            duration: 3000,
+          })
         },
         error: (error) => {
           console.error("Error adding lead:", error)
           this.isLoading = false
-
-          // For demo, close dialog anyway
-          this.dialogRef.close(true)
+          this.errorMessage = error.error?.message || "Failed to add lead. Please try again."
+          this.snackBar.open(this.errorMessage, "Close", {
+            duration: 5000,
+            panelClass: ["error-snackbar"],
+          })
         },
       })
+    } else {
+      this.leadForm.markAllAsTouched()
+      this.errorMessage = "Please fill all required fields correctly"
     }
   }
 

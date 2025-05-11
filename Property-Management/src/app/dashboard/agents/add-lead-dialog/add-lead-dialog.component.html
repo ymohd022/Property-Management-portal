@@ -4,7 +4,7 @@
     <div class="form-row">
       <mat-form-field appearance="outline" class="form-field">
         <mat-label>Client Name *</mat-label>
-        <input matInput formControlName="clientName" placeholder="Enter client's name">
+        <input matInput formControlName="clientName" placeholder="Enter client name">
         <mat-error *ngIf="leadForm.get('clientName')?.hasError('required')">
           Client name is required
         </mat-error>
@@ -14,12 +14,12 @@
     <div class="form-row">
       <mat-form-field appearance="outline" class="form-field">
         <mat-label>Client Email *</mat-label>
-        <input matInput formControlName="clientEmail" placeholder="Enter client's email" type="email">
+        <input matInput formControlName="clientEmail" placeholder="Enter client email" type="email">
         <mat-error *ngIf="leadForm.get('clientEmail')?.hasError('required')">
-          Email is required
+          Client email is required
         </mat-error>
         <mat-error *ngIf="leadForm.get('clientEmail')?.hasError('email')">
-          Please enter a valid email
+          Please enter a valid email address
         </mat-error>
       </mat-form-field>
     </div>
@@ -27,9 +27,9 @@
     <div class="form-row">
       <mat-form-field appearance="outline" class="form-field">
         <mat-label>Client Phone *</mat-label>
-        <input matInput formControlName="clientPhone" placeholder="Enter client's phone number">
+        <input matInput formControlName="clientPhone" placeholder="Enter client phone">
         <mat-error *ngIf="leadForm.get('clientPhone')?.hasError('required')">
-          Phone number is required
+          Client phone is required
         </mat-error>
         <mat-error *ngIf="leadForm.get('clientPhone')?.hasError('pattern')">
           Please enter a valid phone number
@@ -64,7 +64,7 @@
             Please select a property first
           </mat-option>
           <mat-option *ngFor="let flat of flats" [value]="flat.id">
-            Flat {{ flat.flatNumber }} ({{ flat.type }}) - {{ flat.status }}
+            Flat {{ flat.flat_number }} ({{ flat.flat_type }}) - {{ flat.status }}
           </mat-option>
         </mat-select>
       </mat-form-field>
@@ -77,6 +77,10 @@
       </mat-form-field>
     </div>
   </form>
+  
+  <div *ngIf="errorMessage" class="error-message">
+    {{ errorMessage }}
+  </div>
 </div>
 
 <div mat-dialog-actions align="end">

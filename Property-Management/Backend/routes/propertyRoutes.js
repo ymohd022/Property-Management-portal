@@ -2,7 +2,6 @@ const express = require("express")
 const router = express.Router()
 const propertyController = require("../controllers/propertyController")
 const authMiddleware = require("../middleware/authMiddleware")
-const Property = require("../models/property")
 
 // Apply auth middleware to all routes
 router.use(authMiddleware.verifyToken)
@@ -13,7 +12,10 @@ router.get("/", propertyController.getAllProperties)
 // Get property by ID
 router.get("/:id", propertyController.getPropertyById)
 
-// Create property
+// Get flats for property
+router.get("/:id/flats", propertyController.getFlatsForProperty)
+
+// Create new property
 router.post("/", propertyController.createProperty)
 
 // Update property
@@ -23,7 +25,7 @@ router.put("/:id", propertyController.updateProperty)
 router.delete("/:id", propertyController.deleteProperty)
 
 // Upload property images
-router.post("/:id/images", Property.getUploadMiddleware(), propertyController.uploadPropertyImages)
+router.post("/:id/images", propertyController.uploadPropertyImages)
 
 // Set property image as primary
 router.put("/:id/images/:imageId/primary", propertyController.setPropertyImageAsPrimary)

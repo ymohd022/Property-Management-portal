@@ -1,155 +1,215 @@
 <div class="agent-dashboard-container">
-    <div class="dashboard-header">
-      <h1 class="dashboard-title">Agent Dashboard</h1>
-      <div class="dashboard-actions">
-        <button mat-stroked-button>
-          <mat-icon>calendar_today</mat-icon>
-          <span>Jun 2023</span>
-        </button>
-        <button mat-raised-button color="primary">
-          <mat-icon>add</mat-icon>
-          <span>Add Lead</span>
-        </button>
-      </div>
+  <div class="page-header">
+    <h1 class="page-title">Agent Dashboard</h1>
+  </div>
+
+  <div *ngIf="isLoading" class="loading-container">
+    <mat-spinner diameter="40"></mat-spinner>
+    <p>Loading dashboard data...</p>
+  </div>
+
+  <div *ngIf="!isLoading" class="dashboard-content">
+    <!-- KPI Cards -->
+    <div class="kpi-cards">
+      <mat-card class="kpi-card">
+        <mat-card-content>
+          <div class="kpi-icon">
+            <mat-icon>assignment</mat-icon>
+          </div>
+          <div class="kpi-data">
+            <h3 class="kpi-value">{{ dashboardData.kpis.totalAssignments }}</h3>
+            <p class="kpi-label">Total Assignments</p>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="kpi-card">
+        <mat-card-content>
+          <div class="kpi-icon">
+            <mat-icon>people</mat-icon>
+          </div>
+          <div class="kpi-data">
+            <h3 class="kpi-value">{{ dashboardData.kpis.totalLeads }}</h3>
+            <p class="kpi-label">Total Leads</p>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="kpi-card">
+        <mat-card-content>
+          <div class="kpi-icon">
+            <mat-icon>person_add</mat-icon>
+          </div>
+          <div class="kpi-data">
+            <h3 class="kpi-value">{{ dashboardData.kpis.activeLeads }}</h3>
+            <p class="kpi-label">Active Leads</p>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="kpi-card">
+        <mat-card-content>
+          <div class="kpi-icon">
+            <mat-icon>shopping_cart</mat-icon>
+          </div>
+          <div class="kpi-data">
+            <h3 class="kpi-value">{{ dashboardData.kpis.totalSales }}</h3>
+            <p class="kpi-label">Total Sales</p>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="kpi-card">
+        <mat-card-content>
+          <div class="kpi-icon">
+            <mat-icon>attach_money</mat-icon>
+          </div>
+          <div class="kpi-data">
+            <h3 class="kpi-value">{{ formatCurrency(dashboardData.kpis.totalCommission) }}</h3>
+            <p class="kpi-label">Total Commission</p>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="kpi-card">
+        <mat-card-content>
+          <div class="kpi-icon">
+            <mat-icon>money_off</mat-icon>
+          </div>
+          <div class="kpi-data">
+            <h3 class="kpi-value">{{ formatCurrency(dashboardData.kpis.pendingCommission) }}</h3>
+            <p class="kpi-label">Pending Commission</p>
+          </div>
+        </mat-card-content>
+      </mat-card>
     </div>
-  
-    <div *ngIf="isLoading" class="loading-container">
-      <mat-spinner diameter="40"></mat-spinner>
-      <p>Loading dashboard data...</p>
+
+    <!-- Charts Section -->
+    <div class="charts-section">
+      <mat-card class="chart-card">
+        <mat-card-header>
+          <mat-card-title>Leads Overview</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="chart-container">
+            <canvas id="leadsChart"></canvas>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="chart-card">
+        <mat-card-header>
+          <mat-card-title>Sales Performance</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="chart-container">
+            <canvas id="salesChart"></canvas>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="chart-card">
+        <mat-card-header>
+          <mat-card-title>Commission Earnings</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="chart-container">
+            <canvas id="commissionChart"></canvas>
+          </div>
+        </mat-card-content>
+      </mat-card>
     </div>
-  
-    <div *ngIf="!isLoading" class="dashboard-content">
-      <!-- KPI Cards -->
-      <div class="kpi-cards">
-        <app-kpi-card 
-          title="Total Assignments" 
-          [value]="dashboardData.kpis.totalAssignments" 
-          icon="assignment"
-          color="#1a3c8f">
-        </app-kpi-card>
-        
-        <app-kpi-card 
-          title="Total Leads" 
-          [value]="dashboardData.kpis.totalLeads" 
-          icon="people"
-          color="#4361ee">
-        </app-kpi-card>
-        
-        <app-kpi-card 
-          title="Active Leads" 
-          [value]="dashboardData.kpis.activeLeads" 
-          icon="person_search"
-          color="#ff9800">
-        </app-kpi-card>
-        
-        <app-kpi-card 
-          title="Total Sales" 
-          [value]="dashboardData.kpis.totalSales" 
-          icon="sell"
-          color="#4caf50">
-        </app-kpi-card>
-        
-        <app-kpi-card 
-          title="Total Commission" 
-          [value]="formatCurrency(dashboardData.kpis.totalCommission)"
-          icon="payments"
-          color="#4caf50"
-          [isCurrency]="true">
-        </app-kpi-card>
-        
-        <app-kpi-card 
-          title="Pending Commission" 
-          [value]="formatCurrency(dashboardData.kpis.pendingCommission)"
-          icon="account_balance_wallet"
-          color="#ff9800"
-          [isCurrency]="true">
-        </app-kpi-card>
-      </div>
-  
-      <!-- Charts Row -->
-      <div class="charts-row">
-        <app-chart-card 
-          title="Leads Performance" 
-          subtitle="New vs Converted leads"
-          class="leads-chart">
-          <canvas id="leadsChart"></canvas>
-        </app-chart-card>
-        
-        <app-chart-card 
-          title="Sales Performance" 
-          subtitle="Monthly sales"
-          class="sales-chart">
-          <canvas id="salesChart"></canvas>
-        </app-chart-card>
-        
-        <app-chart-card 
-          title="Commission Earnings" 
-          subtitle="Monthly commission"
-          class="commission-chart">
-          <canvas id="commissionChart"></canvas>
-        </app-chart-card>
-      </div>
-  
-      <!-- Assigned Properties -->
-      <div class="assigned-properties">
-        <h2 class="section-title">Assigned Properties</h2>
-        <div class="properties-grid">
-          <mat-card *ngFor="let property of dashboardData.assignedProperties" class="property-card">
-            <mat-card-header>
-              <mat-card-title>{{ property.name }}</mat-card-title>
-              <mat-card-subtitle>{{ property.location }}</mat-card-subtitle>
-            </mat-card-header>
-            <mat-card-content>
-              <div class="property-stats">
-                <div class="stat-item">
-                  <span class="stat-label">Total Flats</span>
-                  <span class="stat-value">{{ property.totalFlats }}</span>
-                </div>
-                <div class="stat-item">
-                  <span class="stat-label">Available</span>
-                  <span class="stat-value">{{ property.availableFlats }}</span>
-                </div>
-              </div>
-            </mat-card-content>
-            <mat-card-actions align="end">
-              <button mat-button color="primary" [routerLink]="['/properties', property.id]">
-                View Details
-              </button>
-            </mat-card-actions>
-          </mat-card>
-        </div>
-      </div>
-  
-      <!-- Bottom Row -->
-      <div class="bottom-row">
-        <!-- Recent Leads -->
-        <mat-card class="recent-leads">
-          <mat-card-header>
-            <mat-card-title>Recent Leads</mat-card-title>
-            <mat-card-subtitle>Latest client inquiries</mat-card-subtitle>
-          </mat-card-header>
-          <mat-card-content>
-            <table mat-table [dataSource]="dashboardData.recentLeads" class="leads-table">
-              <ng-container matColumnDef="clientName">
+
+    <!-- My Assigned Properties Section -->
+    <div class="assigned-properties-section">
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>My Assigned Properties</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div *ngIf="loadingAssignments" class="loading-container">
+            <mat-spinner diameter="30"></mat-spinner>
+            <p>Loading assigned properties...</p>
+          </div>
+
+          <div *ngIf="!loadingAssignments && assignedProperties.length === 0" class="no-data">
+            <p>You don't have any assigned properties yet.</p>
+          </div>
+
+          <div *ngIf="!loadingAssignments && assignedProperties.length > 0" class="properties-table-container">
+            <table mat-table [dataSource]="assignedProperties" class="properties-table">
+              <ng-container matColumnDef="property">
+                <th mat-header-cell *matHeaderCellDef>Property</th>
+                <td mat-cell *matCellDef="let assignment">
+                  <div class="property-info">
+                    <span class="property-name">{{ assignment.property_name }}</span>
+                    <span class="property-location">{{ assignment.property_location }}</span>
+                  </div>
+                </td>
+              </ng-container>
+
+              <ng-container matColumnDef="flat">
+                <th mat-header-cell *matHeaderCellDef>Flat</th>
+                <td mat-cell *matCellDef="let assignment">
+                  <span *ngIf="assignment.flat_number">
+                    {{ assignment.flat_number }} ({{ assignment.flat_type }})
+                  </span>
+                  <span *ngIf="!assignment.flat_number" class="all-flats">All Flats</span>
+                </td>
+              </ng-container>
+
+              <ng-container matColumnDef="commission">
+                <th mat-header-cell *matHeaderCellDef>Commission Rate</th>
+                <td mat-cell *matCellDef="let assignment">{{ assignment.commission_rate }}%</td>
+              </ng-container>
+
+              <ng-container matColumnDef="status">
+                <th mat-header-cell *matHeaderCellDef>Status</th>
+                <td mat-cell *matCellDef="let assignment">
+                  <span class="status-badge" [ngClass]="getStatusClass(assignment.status || 'Active')">
+                    {{ assignment.status || 'Active' }}
+                  </span>
+                </td>
+              </ng-container>
+
+              <ng-container matColumnDef="date">
+                <th mat-header-cell *matHeaderCellDef>Assigned Date</th>
+                <td mat-cell *matCellDef="let assignment">{{ formatDate(assignment.assignment_date) }}</td>
+              </ng-container>
+
+              <tr mat-header-row *matHeaderRowDef="['property', 'flat', 'commission', 'status', 'date']"></tr>
+              <tr mat-row *matRowDef="let row; columns: ['property', 'flat', 'commission', 'status', 'date'];"></tr>
+            </table>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <!-- Recent Leads Section -->
+    <div class="recent-data-section">
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>Recent Leads</mat-card-title>
+          <button mat-button color="primary" routerLink="/agent/leads">View All</button>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="table-container">
+            <table mat-table [dataSource]="dashboardData.recentLeads" class="recent-table">
+              <ng-container matColumnDef="client">
                 <th mat-header-cell *matHeaderCellDef>Client</th>
                 <td mat-cell *matCellDef="let lead">{{ lead.clientName }}</td>
               </ng-container>
-              
+
               <ng-container matColumnDef="property">
                 <th mat-header-cell *matHeaderCellDef>Property</th>
                 <td mat-cell *matCellDef="let lead">{{ lead.property }}</td>
               </ng-container>
-              
-              <ng-container matColumnDef="flatNumber">
+
+              <ng-container matColumnDef="flat">
                 <th mat-header-cell *matHeaderCellDef>Flat</th>
                 <td mat-cell *matCellDef="let lead">{{ lead.flatNumber }}</td>
               </ng-container>
-              
-              <ng-container matColumnDef="date">
-                <th mat-header-cell *matHeaderCellDef>Date</th>
-                <td mat-cell *matCellDef="let lead">{{ formatDate(lead.date) }}</td>
-              </ng-container>
-              
+
               <ng-container matColumnDef="status">
                 <th mat-header-cell *matHeaderCellDef>Status</th>
                 <td mat-cell *matCellDef="let lead">
@@ -158,63 +218,62 @@
                   </span>
                 </td>
               </ng-container>
-              
-              <tr mat-header-row *matHeaderRowDef="['clientName', 'property', 'flatNumber', 'date', 'status']"></tr>
-              <tr mat-row *matRowDef="let row; columns: ['clientName', 'property', 'flatNumber', 'date', 'status'];"></tr>
+
+              <ng-container matColumnDef="date">
+                <th mat-header-cell *matHeaderCellDef>Date</th>
+                <td mat-cell *matCellDef="let lead">{{ formatDate(lead.date) }}</td>
+              </ng-container>
+
+              <tr mat-header-row *matHeaderRowDef="['client', 'property', 'flat', 'status', 'date']"></tr>
+              <tr mat-row *matRowDef="let row; columns: ['client', 'property', 'flat', 'status', 'date'];"></tr>
             </table>
-          </mat-card-content>
-          <mat-card-actions align="end">
-            <button mat-button color="primary">View All Leads</button>
-          </mat-card-actions>
-        </mat-card>
-        
-        <!-- Recent Sales -->
-        <mat-card class="recent-sales">
-          <mat-card-header>
-            <mat-card-title>Recent Sales</mat-card-title>
-            <mat-card-subtitle>Latest property sales</mat-card-subtitle>
-          </mat-card-header>
-          <mat-card-content>
-            <table mat-table [dataSource]="dashboardData.recentSales" class="sales-table">
-              <ng-container matColumnDef="clientName">
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>Recent Sales</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="table-container">
+            <table mat-table [dataSource]="dashboardData.recentSales" class="recent-table">
+              <ng-container matColumnDef="client">
                 <th mat-header-cell *matHeaderCellDef>Client</th>
                 <td mat-cell *matCellDef="let sale">{{ sale.clientName }}</td>
               </ng-container>
-              
+
               <ng-container matColumnDef="property">
                 <th mat-header-cell *matHeaderCellDef>Property</th>
                 <td mat-cell *matCellDef="let sale">{{ sale.property }}</td>
               </ng-container>
-              
-              <ng-container matColumnDef="flatNumber">
+
+              <ng-container matColumnDef="flat">
                 <th mat-header-cell *matHeaderCellDef>Flat</th>
                 <td mat-cell *matCellDef="let sale">{{ sale.flatNumber }}</td>
               </ng-container>
-              
+
               <ng-container matColumnDef="amount">
                 <th mat-header-cell *matHeaderCellDef>Amount</th>
                 <td mat-cell *matCellDef="let sale">{{ formatCurrency(sale.amount) }}</td>
               </ng-container>
-              
+
               <ng-container matColumnDef="commission">
                 <th mat-header-cell *matHeaderCellDef>Commission</th>
                 <td mat-cell *matCellDef="let sale">{{ formatCurrency(sale.commission) }}</td>
               </ng-container>
-              
+
               <ng-container matColumnDef="date">
                 <th mat-header-cell *matHeaderCellDef>Date</th>
                 <td mat-cell *matCellDef="let sale">{{ formatDate(sale.date) }}</td>
               </ng-container>
-              
-              <tr mat-header-row *matHeaderRowDef="['clientName', 'property', 'flatNumber', 'amount', 'commission', 'date']"></tr>
-              <tr mat-row *matRowDef="let row; columns: ['clientName', 'property', 'flatNumber', 'amount', 'commission', 'date'];"></tr>
+
+              <tr mat-header-row *matHeaderRowDef="['client', 'property', 'flat', 'amount', 'commission', 'date']"></tr>
+              <tr mat-row *matRowDef="let row; columns: ['client', 'property', 'flat', 'amount', 'commission', 'date'];"></tr>
             </table>
-          </mat-card-content>
-          <mat-card-actions align="end">
-            <button mat-button color="primary">View All Sales</button>
-          </mat-card-actions>
-        </mat-card>
-      </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
     </div>
   </div>
-  
+</div>

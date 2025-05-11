@@ -2,6 +2,9 @@ import { Component,  OnInit } from "@angular/core"
 import  { AgentService } from "../../../services/agent.service"
 import  { AuthService } from "../../../services/auth.service"
 import { Chart, registerables } from "chart.js"
+import  { MatSnackBar } from "@angular/material/snack-bar"
+
+// Register Chart.js components
 Chart.register(...registerables)
 @Component({
   selector: 'app-agent-dashboard',
@@ -11,8 +14,10 @@ Chart.register(...registerables)
 })
 export class AgentDashboardComponent implements OnInit {
   isLoading = true
+  loadingAssignments = true
   currentAgent: any
   dashboardData: any = {}
+  assignedProperties: any[] = []
   leadsChart: any
   salesChart: any
   commissionChart: any
@@ -20,11 +25,13 @@ export class AgentDashboardComponent implements OnInit {
   constructor(
     private agentService: AgentService,
     private authService: AuthService,
+    private snackBar: MatSnackBar,
   ) {}
 
   ngOnInit() {
     this.currentAgent = this.authService.getCurrentUser()
     this.loadDashboardData()
+    this.loadAssignedProperties()
   }
 
   loadDashboardData() {
@@ -42,6 +49,55 @@ export class AgentDashboardComponent implements OnInit {
         this.isLoading = false
         // Load mock data for demo
         this.loadMockData()
+      },
+    })
+  }
+
+  loadAssignedProperties() {
+    this.loadingAssignments = true
+    this.agentService.getAssignedProperties(this.currentAgent.id).subscribe({
+      next: (data) => {
+        this.assignedProperties = data
+        this.loadingAssignments = false
+      },
+      error: (error) => {
+        console.error("Error loading assigned properties:", error)
+        this.loadingAssignments = false
+        this.snackBar.open("Error loading assigned properties", "Close", {
+          duration: 3000,
+          panelClass: ["error-snackbar"],
+        })
+        // Load mock data
+        this.assignedProperties = [
+          {
+            id: 1,
+            property_id: 1,
+            property_name: "Sunshine Apartments",
+            property_location: "Whitefield, Bangalore",
+            flat_id: 101,
+            flat_number: "101",
+            flat_type: "2BHK",
+            flat_size: 1200,
+            flat_price: 4500000,
+            flat_status: "Available",
+            commission_rate: 5,
+            assignment_date: "2023-05-01",
+          },
+          {
+            id: 2,
+            property_id: 2,
+            property_name: "Green Valley Villas",
+            property_location: "Electronic City, Bangalore",
+            flat_id: null,
+            flat_number: null,
+            flat_type: null,
+            flat_size: null,
+            flat_price: null,
+            flat_status: null,
+            commission_rate: 4,
+            assignment_date: "2023-05-15",
+          },
+        ]
       },
     })
   }
@@ -151,29 +207,6 @@ export class AgentDashboardComponent implements OnInit {
           commission: 52000,
           date: "2023-04-22",
           status: "Completed",
-        },
-      ],
-      assignedProperties: [
-        {
-          id: 1,
-          name: "Sunshine Apartments",
-          location: "Whitefield, Bangalore",
-          totalFlats: 5,
-          availableFlats: 2,
-        },
-        {
-          id: 2,
-          name: "Green Valley Villas",
-          location: "Electronic City, Bangalore",
-          totalFlats: 3,
-          availableFlats: 1,
-        },
-        {
-          id: 3,
-          name: "Lakeside Residency",
-          location: "Hebbal, Bangalore",
-          totalFlats: 4,
-          availableFlats: 2,
         },
       ],
     }
@@ -378,3 +411,4 @@ export class AgentDashboardComponent implements OnInit {
     })
   }
 }
+
