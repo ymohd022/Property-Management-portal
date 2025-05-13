@@ -1,38 +1,22 @@
-<div class="add-payment-dialog">
-  <h2 mat-dialog-title>Add New Payment</h2>
+<div class="edit-payment-dialog">
+  <h2 mat-dialog-title>Edit Payment</h2>
   
   <mat-dialog-content>
     <form [formGroup]="paymentForm" (ngSubmit)="onSubmit()">
-      <!-- Property and Flat Selection -->
+      <!-- Property and Flat Information (Read-only) -->
       <div class="form-row">
         <mat-form-field appearance="outline">
           <mat-label>Property</mat-label>
-          <mat-select formControlName="property_id" (selectionChange)="onPropertyChange()" required>
-            <mat-option *ngFor="let property of properties" [value]="property.id">
-              {{ property.name }}
-            </mat-option>
-          </mat-select>
-          <mat-error *ngIf="paymentForm.get('property_id')?.hasError('required')">
-            Property is required
-          </mat-error>
-          <mat-progress-spinner *ngIf="loadingProperties" diameter="20" mode="indeterminate" matSuffix></mat-progress-spinner>
+          <input matInput [value]="data.payment.property_name" readonly>
         </mat-form-field>
 
         <mat-form-field appearance="outline">
           <mat-label>Flat</mat-label>
-          <mat-select formControlName="flat_id" (selectionChange)="onFlatChange()" required [disabled]="!paymentForm.get('property_id')?.value">
-            <mat-option *ngFor="let flat of flats" [value]="flat.id">
-              {{ flat.flat_number }} (Floor {{ flat.floor_number }})
-            </mat-option>
-          </mat-select>
-          <mat-error *ngIf="paymentForm.get('flat_id')?.hasError('required')">
-            Flat is required
-          </mat-error>
-          <mat-progress-spinner *ngIf="loadingFlats" diameter="20" mode="indeterminate" matSuffix></mat-progress-spinner>
+          <input matInput [value]="data.payment.flat_number + ' (Floor ' + data.payment.floor_number + ')'" readonly>
         </mat-form-field>
       </div>
 
-      <!-- Flat Details Card (if flat is selected) -->
+      <!-- Flat Details Card -->
       <mat-card *ngIf="flatDetails" appearance="outlined" class="flat-details-card">
         <mat-card-content>
           <div class="flat-details-grid">
@@ -134,9 +118,17 @@
       <!-- Receipt Image Upload -->
       <div class="form-row">
         <div class="file-upload-container">
+          <!-- Show existing image if available -->
+          <div *ngIf="existingImageUrl" class="existing-image-container">
+            <img [src]="existingImageUrl" alt="Receipt" class="receipt-thumbnail">
+            <button type="button" mat-icon-button color="warn" (click)="removeExistingImage()" matTooltip="Remove Image">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
+          
           <button type="button" mat-stroked-button (click)="fileInput.click()">
             <mat-icon>attach_file</mat-icon>
-            {{ selectedFile ? 'Change Receipt Image' : 'Add Receipt Image' }}
+            {{ selectedFile ? 'Change Receipt Image' : (existingImageUrl ? 'Replace Receipt Image' : 'Add Receipt Image') }}
           </button>
           <input hidden type="file" #fileInput (change)="onFileSelected($event)" accept="image/*">
           <span *ngIf="selectedFile" class="file-name">{{ selectedFile.name }}</span>
@@ -157,7 +149,7 @@
     <button mat-button (click)="onCancel()" [disabled]="isLoading">Cancel</button>
     <button mat-raised-button color="primary" (click)="onSubmit()" [disabled]="isLoading">
       <mat-spinner *ngIf="isLoading" diameter="20" class="button-spinner"></mat-spinner>
-      <span>Save Payment</span>
+      <span>Update Payment</span>
     </button>
   </mat-dialog-actions>
 </div>

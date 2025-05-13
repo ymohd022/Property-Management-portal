@@ -30,8 +30,10 @@ import { MatChipsModule } from "@angular/material/chips"
 import { MatExpansionModule } from "@angular/material/expansion"
 import { MatRadioModule } from '@angular/material/radio';
 import { FormsModule } from '@angular/forms';
-
-
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatPaginatorModule } from '@angular/material/paginator';
+import { MatSortModule } from '@angular/material/sort';
+import { MatNativeDateModule } from '@angular/material/core';
 // Components
 import { AppComponent } from './app.component';
 
@@ -61,6 +63,7 @@ import { ConfirmDialogComponent } from './shared/confirm-dialog/confirm-dialog.c
 import { EditPropertyComponent } from './dashboard/properties/edit-property/edit-property.component';
 import { PaymentsListComponent } from './payments/payments-list/payments-list.component';
 import { AddPaymentDialogComponent } from './payments/add-payment-dialog/add-payment-dialog.component';
+import { EditPaymentComponent } from './payments/edit-payment/edit-payment.component';
 
 @NgModule({
   declarations: [
@@ -88,6 +91,7 @@ import { AddPaymentDialogComponent } from './payments/add-payment-dialog/add-pay
     EditPropertyComponent,
     PaymentsListComponent,
     AddPaymentDialogComponent,
+    EditPaymentComponent,
   ],
   imports: [
     BrowserModule,
@@ -121,6 +125,10 @@ import { AddPaymentDialogComponent } from './payments/add-payment-dialog/add-pay
     MatRadioModule,
     HttpClientModule,
     FormsModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
+    MatPaginatorModule,
+    MatSortModule,
   ],
   providers: [
     provideHttpClient(),
