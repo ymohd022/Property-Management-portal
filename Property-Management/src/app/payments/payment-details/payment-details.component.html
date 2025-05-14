@@ -1,0 +1,115 @@
+<div class="payment-details-container">
+  <div class="page-header">
+    <button mat-icon-button (click)="goBack()" class="back-button">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <h1 class="page-title">Payment Details</h1>
+    <div class="header-actions">
+      <button mat-raised-button color="accent" (click)="editPayment()">
+        <mat-icon>edit</mat-icon>
+        Edit
+      </button>
+      <button mat-raised-button color="warn" (click)="deletePayment()">
+        <mat-icon>delete</mat-icon>
+        Delete
+      </button>
+    </div>
+  </div>
+
+  <div class="loading-container" *ngIf="isLoading">
+    <mat-spinner diameter="40"></mat-spinner>
+    <p>Loading payment details...</p>
+  </div>
+
+  <div class="details-content" *ngIf="!isLoading && payment">
+    <mat-card class="property-info-card">
+      <mat-card-content>
+        <div class="property-info">
+          <div class="info-row">
+            <div class="info-label">Property:</div>
+            <div class="info-value">{{ payment.property_name }}</div>
+          </div>
+          <div class="info-row">
+            <div class="info-label">Flat:</div>
+            <div class="info-value">
+              {{ payment.block_name ? payment.block_name + ' - ' : '' }}{{ payment.flat_number }}
+            </div>
+          </div>
+          <div class="info-row" *ngIf="payment.client_name">
+            <div class="info-label">Client:</div>
+            <div class="info-value">{{ payment.client_name }}</div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <div class="details-grid">
+      <mat-card class="payment-info-card">
+        <mat-card-header>
+          <mat-card-title>Payment Information</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="info-row">
+            <div class="info-label">Payment Date:</div>
+            <div class="info-value">{{ formatDate(payment.payment_date) }}</div>
+          </div>
+          <div class="info-row">
+            <div class="info-label">Payment Type:</div>
+            <div class="info-value">{{ payment.payment_type }}</div>
+          </div>
+          <div class="info-row">
+            <div class="info-label">Payment Method:</div>
+            <div class="info-value">{{ payment.payment_method }}</div>
+          </div>
+          <div class="info-row">
+            <div class="info-label">Amount:</div>
+            <div class="info-value amount">{{ formatCurrency(payment.amount) }}</div>
+          </div>
+          <div class="info-row" *ngIf="payment.reference_number">
+            <div class="info-label">Reference Number:</div>
+            <div class="info-value">{{ payment.reference_number }}</div>
+          </div>
+          <div class="info-row">
+            <div class="info-label">Created By:</div>
+            <div class="info-value">{{ payment.created_by_name }}</div>
+          </div>
+          <div class="info-row">
+            <div class="info-label">Created At:</div>
+            <div class="info-value">{{ formatDate(payment.created_at) }}</div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="receipt-card" *ngIf="payment.receipt_image">
+        <mat-card-header>
+          <mat-card-title>Receipt</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="receipt-container">
+            <img *ngIf="payment.receipt_image.endsWith('.jpg') || payment.receipt_image.endsWith('.jpeg') || payment.receipt_image.endsWith('.png') || payment.receipt_image.endsWith('.gif')" 
+                 [src]="'http://localhost:3000' + payment.receipt_image" 
+                 alt="Payment Receipt" 
+                 class="receipt-image">
+            
+            <a *ngIf="payment.receipt_image.endsWith('.pdf')" 
+               [href]="'http://localhost:3000' + payment.receipt_image" 
+               target="_blank" 
+               class="pdf-link">
+              <mat-icon>picture_as_pdf</mat-icon>
+              View PDF Receipt
+            </a>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <mat-card class="comments-card" *ngIf="payment.comments">
+      <mat-card-header>
+        <mat-card-title>Comments</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <p class="comments-text">{{ payment.comments }}</p>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>

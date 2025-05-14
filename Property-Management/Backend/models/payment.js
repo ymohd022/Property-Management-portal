@@ -1,256 +1,252 @@
-const db = require('../config/database');
+const db = require("../config/database");
+const fs = require("fs");
+const path = require("path");
+const multer = require("multer");
+
+// Configure multer storage for receipt images
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const uploadsDir = path.join(__dirname, "../uploads/receipts");
+    // Create directory if it doesn't exist
+    if (!fs.existsSync(uploadsDir)) {
+      fs.mkdirSync(uploadsDir, { recursive: true });
+    }
+    cb(null, uploadsDir);
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+    const extension = path.extname(file.originalname);
+    cb(null, `receipt-${uniqueSuffix}${extension}`);
+  },
+});
+
+const upload = multer({
+  storage: storage,
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB file size limit
+  fileFilter: (req, file, cb) => {
+    // Accept images only
+    if (!file.originalname.match(/\.(jpg|jpeg|png|gif|pdf)$/)) {
+      return cb(new Error("Only image and PDF files are allowed!"), false);
+    }
+    cb(null, true);
+  },
+});
 
 class Payment {
   static async getAllPayments() {
-    return new Promise((resolve, reject) => {
-      const query = `
-        SELECT 
-          p.*, 
+    try {
+      const [payments] = await db.query(`
+        SELECT p.*, 
+          pr.name as property_name, 
           f.flat_number, 
-          f.floor_number,
-          pr.name AS property_name,
-          u.name AS created_by_name
-        FROM 
-          payments p
-        JOIN 
-          flats f ON p.flat_id = f.id
-        JOIN 
-          properties pr ON p.property_id = pr.id
-        JOIN 
-          users u ON p.created_by = u.id
-        ORDER BY 
-          p.payment_date DESC
-      `;
-      
-      db.query(query, (err, results) => {
-        if (err) {
-          return reject(err);
-        }
-        resolve(results);
-      });
-    });
-  }
-
-  static async getPaymentsByFlatId(flatId) {
-    return new Promise((resolve, reject) => {
-      const query = `
-        SELECT 
-          p.*, 
-          u.name AS created_by_name
-        FROM 
-          payments p
-        JOIN 
-          users u ON p.created_by = u.id
-        WHERE 
-          p.flat_id = ?
-        ORDER BY 
-          p.payment_date DESC
-      `;
-      
-      db.query(query, [flatId], (err, results) => {
-        if (err) {
-          return reject(err);
-        }
-        resolve(results);
-      });
-    });
+          b.block_name,
+          CONCAT(u.name) as created_by_name,
+          CONCAT(c.name) as client_name
+        FROM payments p
+        JOIN properties pr ON p.property_id = pr.id
+        JOIN flats f ON p.flat_id = f.id
+        LEFT JOIN blocks b ON p.block_id = b.id
+        JOIN users u ON p.created_by = u.id
+        LEFT JOIN clients c ON p.client_id = c.id
+        ORDER BY p.payment_date DESC
+      `);
+      return payments;
+    } catch (error) {
+      console.error("Error getting payments:", error);
+      throw error;
+    }
   }
 
   static async getPaymentsByPropertyId(propertyId) {
-    return new Promise((resolve, reject) => {
-      const query = `
-        SELECT 
-          p.*, 
+    try {
+      const [payments] = await db.query(
+        `
+        SELECT p.*, 
+          pr.name as property_name, 
           f.flat_number, 
-          f.floor_number,
-          u.name AS created_by_name
-        FROM 
-          payments p
-        JOIN 
-          flats f ON p.flat_id = f.id
-        JOIN 
-          users u ON p.created_by = u.id
-        WHERE 
-          p.property_id = ?
-        ORDER BY 
-          p.payment_date DESC
-      `;
-      
-      db.query(query, [propertyId], (err, results) => {
-        if (err) {
-          return reject(err);
-        }
-        resolve(results);
-      });
-    });
+          b.block_name,
+          CONCAT(u.name) as created_by_name,
+          CONCAT(c.name) as client_name
+        FROM payments p
+        JOIN properties pr ON p.property_id = pr.id
+        JOIN flats f ON p.flat_id = f.id
+        LEFT JOIN blocks b ON p.block_id = b.id
+        JOIN users u ON p.created_by = u.id
+        LEFT JOIN clients c ON p.client_id = c.id
+        WHERE p.property_id = ?
+        ORDER BY p.payment_date DESC
+      `,
+        [propertyId]
+      );
+      return payments;
+    } catch (error) {
+      console.error(`Error getting payments for property ${propertyId}:`, error);
+      throw error;
+    }
+  }
+
+  static async getPaymentsByFlatId(flatId) {
+    try {
+      const [payments] = await db.query(
+        `
+        SELECT p.*, 
+          pr.name as property_name, 
+          f.flat_number, 
+          b.block_name,
+          CONCAT(u.name) as created_by_name,
+          CONCAT(c.name) as client_name
+        FROM payments p
+        JOIN properties pr ON p.property_id = pr.id
+        JOIN flats f ON p.flat_id = f.id
+        LEFT JOIN blocks b ON p.block_id = b.id
+        JOIN users u ON p.created_by = u.id
+        LEFT JOIN clients c ON p.client_id = c.id
+        WHERE p.flat_id = ?
+        ORDER BY p.payment_date DESC
+      `,
+        [flatId]
+      );
+      return payments;
+    } catch (error) {
+      console.error(`Error getting payments for flat ${flatId}:`, error);
+      throw error;
+    }
   }
 
   static async getPaymentById(id) {
-    return new Promise((resolve, reject) => {
-      const query = `
-        SELECT 
-          p.*, 
+    try {
+      const [payments] = await db.query(
+        `
+        SELECT p.*, 
+          pr.name as property_name, 
           f.flat_number, 
-          f.floor_number,
-          pr.name AS property_name,
-          u.name AS created_by_name
-        FROM 
-          payments p
-        JOIN 
-          flats f ON p.flat_id = f.id
-        JOIN 
-          properties pr ON p.property_id = pr.id
-        JOIN 
-          users u ON p.created_by = u.id
-        WHERE 
-          p.id = ?
-      `;
-      
-      db.query(query, [id], (err, results) => {
-        if (err) {
-          return reject(err);
-        }
-        
-        if (results.length === 0) {
-          return resolve(null);
-        }
-        
-        resolve(results[0]);
-      });
-    });
+          b.block_name,
+          CONCAT(u.name) as created_by_name,
+          CONCAT(c.name) as client_name
+        FROM payments p
+        JOIN properties pr ON p.property_id = pr.id
+        JOIN flats f ON p.flat_id = f.id
+        LEFT JOIN blocks b ON p.block_id = b.id
+        JOIN users u ON p.created_by = u.id
+        LEFT JOIN clients c ON p.client_id = c.id
+        WHERE p.id = ?
+      `,
+        [id]
+      );
+
+      if (payments.length === 0) {
+        return null;
+      }
+
+      return payments[0];
+    } catch (error) {
+      console.error(`Error getting payment with id ${id}:`, error);
+      throw error;
+    }
   }
 
-  static async createPayment(paymentData) {
-    return new Promise((resolve, reject) => {
-      const query = `
-        INSERT INTO payments 
-        (flat_id, property_id, payment_date, payment_type, payment_amount, 
-         payment_category, reference_number, receipt_image_path, comments, created_by) 
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-      `;
-      
-      const values = [
-        paymentData.flat_id,
-        paymentData.property_id,
-        paymentData.payment_date,
-        paymentData.payment_type,
-        paymentData.payment_amount,
-        paymentData.payment_category,
-        paymentData.reference_number || null,
-        paymentData.receipt_image_path || null,
+  static async createPayment(paymentData, userId) {
+  try {
+    // Convert "undefined" to null and validate client_id
+    const clientId = paymentData.clientId === 'undefined' || paymentData.clientId === undefined 
+      ? null 
+      : paymentData.clientId;
+
+    const [result] = await db.query(
+      `
+      INSERT INTO payments (
+        property_id, block_id, flat_id, client_id, payment_date, 
+        payment_type, payment_method, amount, reference_number, 
+        receipt_image, comments, created_by
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `,
+      [
+        paymentData.propertyId,
+        paymentData.blockId || null,
+        paymentData.flatId,
+        clientId, // Use sanitized clientId
+        paymentData.paymentDate,
+        paymentData.paymentType,
+        paymentData.paymentMethod,
+        paymentData.amount,
+        paymentData.referenceNumber || null,
+        paymentData.receiptImage || null,
         paymentData.comments || null,
-        paymentData.created_by
-      ];
-      
-      db.query(query, values, (err, result) => {
-        if (err) {
-          return reject(err);
-        }
-        resolve({ id: result.insertId, ...paymentData });
-      });
-    });
-  }
+        userId,
+      ]
+    );
 
+    return result.insertId;
+  } catch (error) {
+    console.error("Error creating payment:", error);
+    throw error;
+  }
+}
   static async updatePayment(id, paymentData) {
-    return new Promise((resolve, reject) => {
-      const query = `
-        UPDATE payments 
-        SET 
+    try {
+      const [result] = await db.query(
+        `
+        UPDATE payments SET
+          property_id = ?,
+          block_id = ?,
+          flat_id = ?,
+          client_id = ?,
           payment_date = ?,
           payment_type = ?,
-          payment_amount = ?,
-          payment_category = ?,
+          payment_method = ?,
+          amount = ?,
           reference_number = ?,
-          receipt_image_path = ?,
+          receipt_image = COALESCE(?, receipt_image),
           comments = ?
         WHERE id = ?
-      `;
-      
-      const values = [
-        paymentData.payment_date,
-        paymentData.payment_type,
-        paymentData.payment_amount,
-        paymentData.payment_category,
-        paymentData.reference_number || null,
-        paymentData.receipt_image_path || null,
-        paymentData.comments || null,
-        id
-      ];
-      
-      db.query(query, values, (err, result) => {
-        if (err) {
-          return reject(err);
-        }
-        
-        if (result.affectedRows === 0) {
-          return reject(new Error('Payment not found'));
-        }
-        
-        resolve({ id, ...paymentData });
-      });
-    });
+      `,
+        [
+          paymentData.propertyId,
+          paymentData.blockId || null,
+          paymentData.flatId,
+          paymentData.clientId || null,
+          paymentData.paymentDate,
+          paymentData.paymentType,
+          paymentData.paymentMethod,
+          paymentData.amount,
+          paymentData.referenceNumber || null,
+          paymentData.receiptImage || null,
+          paymentData.comments || null,
+          id,
+        ]
+      );
+
+      return result.affectedRows > 0;
+    } catch (error) {
+      console.error(`Error updating payment with id ${id}:`, error);
+      throw error;
+    }
   }
 
   static async deletePayment(id) {
-    return new Promise((resolve, reject) => {
-      const query = 'DELETE FROM payments WHERE id = ?';
+    try {
+      // Get payment to check if it has an image
+      const [payments] = await db.query("SELECT receipt_image FROM payments WHERE id = ?", [id]);
       
-      db.query(query, [id], (err, result) => {
-        if (err) {
-          return reject(err);
+      if (payments.length > 0 && payments[0].receipt_image) {
+        // Delete the image file
+        const imagePath = path.join(__dirname, "../uploads/receipts", path.basename(payments[0].receipt_image));
+        if (fs.existsSync(imagePath)) {
+          fs.unlinkSync(imagePath);
         }
-        
-        if (result.affectedRows === 0) {
-          return reject(new Error('Payment not found'));
-        }
-        
-        resolve({ id });
-      });
-    });
+      }
+
+      const [result] = await db.query("DELETE FROM payments WHERE id = ?", [id]);
+      return result.affectedRows > 0;
+    } catch (error) {
+      console.error(`Error deleting payment with id ${id}:`, error);
+      throw error;
+    }
   }
 
-  static async getPaymentSummary() {
-    return new Promise((resolve, reject) => {
-      const query = `SELECT * FROM payment_summary_view`;
-      
-      db.query(query, (err, results) => {
-        if (err) {
-          return reject(err);
-        }
-        resolve(results);
-      });
-    });
-  }
-
-  static async getPaymentSummaryByPropertyId(propertyId) {
-    return new Promise((resolve, reject) => {
-      const query = `SELECT * FROM payment_summary_view WHERE property_id = ?`;
-      
-      db.query(query, [propertyId], (err, results) => {
-        if (err) {
-          return reject(err);
-        }
-        resolve(results);
-      });
-    });
-  }
-
-  static async getPaymentSummaryByFlatId(flatId) {
-    return new Promise((resolve, reject) => {
-      const query = `SELECT * FROM payment_summary_view WHERE flat_id = ?`;
-      
-      db.query(query, [flatId], (err, results) => {
-        if (err) {
-          return reject(err);
-        }
-        
-        if (results.length === 0) {
-          return resolve(null);
-        }
-        
-        resolve(results[0]);
-      });
-    });
+  // Get upload middleware
+  static getUploadMiddleware() {
+    return upload.single("receiptImage");
   }
 }
 

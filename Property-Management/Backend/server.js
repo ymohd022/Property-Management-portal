@@ -20,7 +20,7 @@ const propertyRoutes = require("./routes/propertyRoutes")
 const userRoutes = require("./routes/userRoutes")
 const dashboardRoutes = require("./routes/dashboardRoutes")
 const paymentRoutes = require("./routes/paymentRoutes")
-// const payment = require("./routes/payments")
+
 
 // Middleware
 app.use(
@@ -50,7 +50,6 @@ app.use("/api/properties", propertyRoutes)
 app.use("/api/users", userRoutes)
 app.use("/api/dashboard", dashboardRoutes)
 app.use("/api/payments", paymentRoutes)
-// app.use("/api/payment", payment)
 
 // Authentication routes
 app.post("/api/auth/login", async (req, res) => {

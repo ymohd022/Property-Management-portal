@@ -1,163 +1,143 @@
-<div class="add-payment-dialog">
-  <h2 mat-dialog-title>Add New Payment</h2>
-  
-  <mat-dialog-content>
-    <form [formGroup]="paymentForm" (ngSubmit)="onSubmit()">
-      <!-- Property and Flat Selection -->
-      <div class="form-row">
-        <mat-form-field appearance="outline">
-          <mat-label>Property</mat-label>
-          <mat-select formControlName="property_id" (selectionChange)="onPropertyChange()" required>
-            <mat-option *ngFor="let property of properties" [value]="property.id">
-              {{ property.name }}
-            </mat-option>
-          </mat-select>
-          <mat-error *ngIf="paymentForm.get('property_id')?.hasError('required')">
-            Property is required
-          </mat-error>
-          <mat-progress-spinner *ngIf="loadingProperties" diameter="20" mode="indeterminate" matSuffix></mat-progress-spinner>
-        </mat-form-field>
+<h2 mat-dialog-title>{{ data.isEdit ? 'Edit Payment' : 'Add New Payment' }}</h2>
 
-        <mat-form-field appearance="outline">
-          <mat-label>Flat</mat-label>
-          <mat-select formControlName="flat_id" (selectionChange)="onFlatChange()" required [disabled]="!paymentForm.get('property_id')?.value">
-            <mat-option *ngFor="let flat of flats" [value]="flat.id">
-              {{ flat.flat_number }} (Floor {{ flat.floor_number }})
-            </mat-option>
-          </mat-select>
-          <mat-error *ngIf="paymentForm.get('flat_id')?.hasError('required')">
-            Flat is required
-          </mat-error>
-          <mat-progress-spinner *ngIf="loadingFlats" diameter="20" mode="indeterminate" matSuffix></mat-progress-spinner>
-        </mat-form-field>
-      </div>
+<mat-dialog-content>
+  <form [formGroup]="paymentForm" class="payment-form">
+    <div class="form-row">
+      <mat-form-field appearance="outline">
+        <mat-label>Property</mat-label>
+        <mat-select formControlName="propertyId" (selectionChange)="onPropertyChange()" [disabled]="loadingProperties">
+          <mat-option *ngFor="let property of properties" [value]="property.id">
+            {{ property.name }}
+          </mat-option>
+        </mat-select>
+        <mat-error *ngIf="paymentForm.get('propertyId')?.hasError('required')">
+          Property is required
+        </mat-error>
+        <mat-progress-spinner *ngIf="loadingProperties" diameter="20" mode="indeterminate" class="spinner-in-field">
+        </mat-progress-spinner>
+      </mat-form-field>
 
-      <!-- Flat Details Card (if flat is selected) -->
-      <mat-card *ngIf="flatDetails" appearance="outlined" class="flat-details-card">
-        <mat-card-content>
-          <div class="flat-details-grid">
-            <div class="detail-item">
-              <span class="detail-label">Floor No:</span>
-              <span class="detail-value">{{ flatDetails.floor_number }}</span>
-            </div>
-            <div class="detail-item">
-              <span class="detail-label">Flat No:</span>
-              <span class="detail-value">{{ flatDetails.flat_number }}</span>
-            </div>
-            <div class="detail-item">
-              <span class="detail-label">BHK Type:</span>
-              <span class="detail-value">{{ flatDetails.bhk_type }}</span>
-            </div>
-            <div class="detail-item">
-              <span class="detail-label">Parking:</span>
-              <span class="detail-value">{{ flatDetails.has_parking ? 'Yes' : 'No' }}</span>
-            </div>
-            <div class="detail-item">
-              <span class="detail-label">Area:</span>
-              <span class="detail-value">{{ flatDetails.flat_size }}</span>
-            </div>
-            <div class="detail-item">
-              <span class="detail-label">UDS:</span>
-              <span class="detail-value">{{ flatDetails.uds }}</span>
-            </div>
-            <div class="detail-item">
-              <span class="detail-label">Sold By:</span>
-              <span class="detail-value">{{ flatDetails.sold_by_name || '-' }}</span>
-            </div>
-            <div class="detail-item">
-              <span class="detail-label">Flat Owner:</span>
-              <span class="detail-value">{{ flatDetails.flat_owner || '-' }}</span>
-            </div>
-          </div>
-        </mat-card-content>
-      </mat-card>
+      <mat-form-field appearance="outline" *ngIf="blocks.length > 0">
+        <mat-label>Block</mat-label>
+        <mat-select formControlName="blockId" (selectionChange)="onBlockChange()" [disabled]="loadingBlocks">
+          <mat-option [value]="">All Blocks</mat-option>
+          <mat-option *ngFor="let block of blocks" [value]="block.id">
+            {{ block.block_name }}
+          </mat-option>
+        </mat-select>
+        <mat-progress-spinner *ngIf="loadingBlocks" diameter="20" mode="indeterminate" class="spinner-in-field">
+        </mat-progress-spinner>
+      </mat-form-field>
+    </div>
 
-      <!-- Payment Details -->
-      <div class="form-row">
-        <mat-form-field appearance="outline">
-          <mat-label>Payment Date</mat-label>
-          <input matInput [matDatepicker]="picker" formControlName="payment_date" required>
-          <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
-          <mat-datepicker #picker></mat-datepicker>
-          <mat-error *ngIf="paymentForm.get('payment_date')?.hasError('required')">
-            Payment date is required
-          </mat-error>
-        </mat-form-field>
-      </div>
+    <div class="form-row">
+      <mat-form-field appearance="outline">
+        <mat-label>Flat</mat-label>
+        <mat-select formControlName="flatId" [disabled]="loadingFlats">
+          <mat-option *ngFor="let flat of flats" [value]="flat.id">
+            {{ flat.flat_number }} ({{ flat.flat_type || 'N/A' }})
+          </mat-option>
+        </mat-select>
+        <mat-error *ngIf="paymentForm.get('flatId')?.hasError('required')">
+          Flat is required
+        </mat-error>
+        <mat-progress-spinner *ngIf="loadingFlats" diameter="20" mode="indeterminate" class="spinner-in-field">
+        </mat-progress-spinner>
+      </mat-form-field>
 
-      <div class="form-row">
-        <mat-form-field appearance="outline">
-          <mat-label>Payment Category</mat-label>
-          <mat-select formControlName="payment_category" required>
-            <mat-option *ngFor="let category of paymentCategories" [value]="category">
-              {{ category }}
-            </mat-option>
-          </mat-select>
-          <mat-error *ngIf="paymentForm.get('payment_category')?.hasError('required')">
-            Payment category is required
-          </mat-error>
-        </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Client</mat-label>
+        <mat-select formControlName="clientId" [disabled]="loadingClients">
+          <mat-option [value]="">None</mat-option>
+          <mat-option *ngFor="let client of clients" [value]="client.id">
+            {{ client.name }}
+          </mat-option>
+        </mat-select>
+        <mat-progress-spinner *ngIf="loadingClients" diameter="20" mode="indeterminate" class="spinner-in-field">
+        </mat-progress-spinner>
+      </mat-form-field>
+    </div>
 
-        <mat-form-field appearance="outline">
-          <mat-label>Payment Type</mat-label>
-          <mat-select formControlName="payment_type" required>
-            <mat-option *ngFor="let type of paymentTypes" [value]="type">
-              {{ type }}
-            </mat-option>
-          </mat-select>
-          <mat-error *ngIf="paymentForm.get('payment_type')?.hasError('required')">
-            Payment type is required
-          </mat-error>
-        </mat-form-field>
-      </div>
+    <div class="form-row">
+      <mat-form-field appearance="outline">
+        <mat-label>Payment Date</mat-label>
+        <input matInput [matDatepicker]="picker" formControlName="paymentDate">
+        <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+        <mat-datepicker #picker></mat-datepicker>
+        <mat-error *ngIf="paymentForm.get('paymentDate')?.hasError('required')">
+          Payment date is required
+        </mat-error>
+      </mat-form-field>
 
-      <div class="form-row">
-        <mat-form-field appearance="outline">
-          <mat-label>Amount</mat-label>
-          <input matInput type="number" formControlName="payment_amount" required>
-          <span matTextPrefix>₹&nbsp;</span>
-          <mat-error *ngIf="paymentForm.get('payment_amount')?.hasError('required')">
-            Amount is required
-          </mat-error>
-          <mat-error *ngIf="paymentForm.get('payment_amount')?.hasError('min')">
-            Amount must be greater than 0
-          </mat-error>
-        </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Payment Type</mat-label>
+        <mat-select formControlName="paymentType">
+          <mat-option *ngFor="let type of paymentTypes" [value]="type">
+            {{ type }}
+          </mat-option>
+        </mat-select>
+        <mat-error *ngIf="paymentForm.get('paymentType')?.hasError('required')">
+          Payment type is required
+        </mat-error>
+      </mat-form-field>
+    </div>
 
-        <mat-form-field appearance="outline">
-          <mat-label>Reference Number</mat-label>
-          <input matInput formControlName="reference_number">
-          <mat-hint>Required for Cheque/UPI/Bank Transfer</mat-hint>
-        </mat-form-field>
-      </div>
+    <div class="form-row">
+      <mat-form-field appearance="outline">
+        <mat-label>Payment Method</mat-label>
+        <mat-select formControlName="paymentMethod">
+          <mat-option *ngFor="let method of paymentMethods" [value]="method">
+            {{ method }}
+          </mat-option>
+        </mat-select>
+        <mat-error *ngIf="paymentForm.get('paymentMethod')?.hasError('required')">
+          Payment method is required
+        </mat-error>
+      </mat-form-field>
 
-      <!-- Receipt Image Upload -->
-      <div class="form-row">
-        <div class="file-upload-container">
+      <mat-form-field appearance="outline">
+        <mat-label>Amount</mat-label>
+        <input matInput type="number" formControlName="amount">
+        <span matPrefix>₹&nbsp;</span>
+        <mat-error *ngIf="paymentForm.get('amount')?.hasError('required')">
+          Amount is required
+        </mat-error>
+        <mat-error *ngIf="paymentForm.get('amount')?.hasError('min')">
+          Amount must be greater than 0
+        </mat-error>
+      </mat-form-field>
+    </div>
+
+    <div class="form-row">
+      <mat-form-field appearance="outline">
+        <mat-label>Reference Number</mat-label>
+        <input matInput formControlName="referenceNumber">
+      </mat-form-field>
+
+      <div class="file-upload-field">
+        <label>Receipt Image</label>
+        <div class="file-input-container">
           <button type="button" mat-stroked-button (click)="fileInput.click()">
             <mat-icon>attach_file</mat-icon>
-            {{ selectedFile ? 'Change Receipt Image' : 'Add Receipt Image' }}
+            {{ selectedFile ? selectedFile.name : 'Choose File' }}
           </button>
-          <input hidden type="file" #fileInput (change)="onFileSelected($event)" accept="image/*">
-          <span *ngIf="selectedFile" class="file-name">{{ selectedFile.name }}</span>
+          <input hidden type="file" #fileInput (change)="onFileSelected($event)" accept="image/*,application/pdf">
         </div>
+        <p class="file-hint">Max size: 5MB. Allowed formats: Images, PDF</p>
       </div>
+    </div>
 
-      <!-- Comments -->
-      <div class="form-row">
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Comments</mat-label>
-          <textarea matInput formControlName="comments" rows="3"></textarea>
-        </mat-form-field>
-      </div>
-    </form>
-  </mat-dialog-content>
-  
-  <mat-dialog-actions align="end">
-    <button mat-button (click)="onCancel()" [disabled]="isLoading">Cancel</button>
-    <button mat-raised-button color="primary" (click)="onSubmit()" [disabled]="isLoading">
-      <mat-spinner *ngIf="isLoading" diameter="20" class="button-spinner"></mat-spinner>
-      <span>Save Payment</span>
-    </button>
-  </mat-dialog-actions>
-</div>
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Comments</mat-label>
+      <textarea matInput formControlName="comments" rows="3"></textarea>
+    </mat-form-field>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="onCancel()" [disabled]="isLoading">Cancel</button>
+  <button mat-raised-button color="primary" (click)="onSubmit()" [disabled]="isLoading">
+    <mat-spinner diameter="20" *ngIf="isLoading" class="button-spinner"></mat-spinner>
+    <span *ngIf="!isLoading">{{ data.isEdit ? 'Update' : 'Save' }}</span>
+  </button>
+</mat-dialog-actions>

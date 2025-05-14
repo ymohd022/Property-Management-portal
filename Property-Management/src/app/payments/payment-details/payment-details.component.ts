@@ -1,6 +1,5 @@
 import { Component,  OnInit } from "@angular/core"
-import { MatTableDataSource } from "@angular/material/table"
-import  { Router } from "@angular/router"
+import  { ActivatedRoute, Router } from "@angular/router"
 import  { MatDialog } from "@angular/material/dialog"
 import  { MatSnackBar } from "@angular/material/snack-bar"
 import  { PaymentService } from "../../services/payment.service"
@@ -8,100 +7,59 @@ import { ConfirmDialogComponent } from "../../shared/confirm-dialog/confirm-dial
 import { AddPaymentDialogComponent } from "../add-payment-dialog/add-payment-dialog.component"
 
 @Component({
-  selector: 'app-payments-list',
+  selector: 'app-payment-details',
   standalone: false,
-  templateUrl: './payments-list.component.html',
-  styleUrl: './payments-list.component.css'
+  templateUrl: './payment-details.component.html',
+  styleUrl: './payment-details.component.css'
 })
-export class PaymentsListComponent implements OnInit {
-  displayedColumns: string[] = [
-    "property",
-    "flat",
-    "date",
-    "type",
-    "method",
-    "amount",
-    "client",
-    "reference",
-    "actions",
-  ]
-  dataSource = new MatTableDataSource<any>()
+export class PaymentDetailsComponent implements OnInit {
+  payment: any = null
   isLoading = true
-  selectedPropertyId: number | null = null
-  properties: any[] = []
+  paymentId = 0
 
   constructor(
     private paymentService: PaymentService,
+    private route: ActivatedRoute,
     private router: Router,
     private dialog: MatDialog,
     private snackBar: MatSnackBar,
   ) {}
 
   ngOnInit() {
-    this.loadPayments()
+    this.route.params.subscribe((params) => {
+      this.paymentId = +params["id"]
+      this.loadPaymentDetails()
+    })
   }
 
-  loadPayments() {
+  loadPaymentDetails() {
     this.isLoading = true
-
-    const request = this.selectedPropertyId
-      ? this.paymentService.getPaymentsByPropertyId(this.selectedPropertyId)
-      : this.paymentService.getAllPayments()
-
-    request.subscribe({
+    this.paymentService.getPaymentById(this.paymentId).subscribe({
       next: (data) => {
-        this.dataSource.data = data
+        this.payment = data
         this.isLoading = false
       },
       error: (error) => {
-        console.error("Error loading payments:", error)
-        this.snackBar.open("Error loading payments", "Close", {
+        console.error("Error loading payment details:", error)
+        this.snackBar.open("Error loading payment details", "Close", {
           duration: 3000,
           panelClass: ["error-snackbar"],
         })
         this.isLoading = false
+        this.router.navigate(["/payments"])
       },
     })
   }
 
-  applyFilter(event: Event) {
-    const filterValue = (event.target as HTMLInputElement).value
-    this.dataSource.filter = filterValue.trim().toLowerCase()
-  }
-
-  onPropertyChange() {
-    this.loadPayments()
-  }
-
-  viewPaymentDetails(paymentId: number) {
-    this.router.navigate(["/payments", paymentId])
-  }
-
-  openAddPaymentDialog() {
+  editPayment() {
     const dialogRef = this.dialog.open(AddPaymentDialogComponent, {
       width: "800px",
-      data: { propertyId: this.selectedPropertyId },
+      data: { payment: this.payment, isEdit: true },
     })
 
     dialogRef.afterClosed().subscribe((result) => {
       if (result) {
-        this.loadPayments()
-        this.snackBar.open("Payment added successfully", "Close", {
-          duration: 3000,
-        })
-      }
-    })
-  }
-
-  editPayment(payment: any) {
-    const dialogRef = this.dialog.open(AddPaymentDialogComponent, {
-      width: "800px",
-      data: { payment, isEdit: true },
-    })
-
-    dialogRef.afterClosed().subscribe((result) => {
-      if (result) {
-        this.loadPayments()
+        this.loadPaymentDetails()
         this.snackBar.open("Payment updated successfully", "Close", {
           duration: 3000,
         })
@@ -109,7 +67,7 @@ export class PaymentsListComponent implements OnInit {
     })
   }
 
-  deletePayment(paymentId: number) {
+  deletePayment() {
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       width: "400px",
       data: {
@@ -122,12 +80,12 @@ export class PaymentsListComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe((result) => {
       if (result) {
-        this.paymentService.deletePayment(paymentId).subscribe({
+        this.paymentService.deletePayment(this.paymentId).subscribe({
           next: () => {
-            this.loadPayments()
             this.snackBar.open("Payment deleted successfully", "Close", {
               duration: 3000,
             })
+            this.router.navigate(["/payments"])
           },
           error: (error) => {
             console.error("Error deleting payment:", error)
@@ -139,6 +97,10 @@ export class PaymentsListComponent implements OnInit {
         })
       }
     })
+  }
+
+  goBack() {
+    this.router.navigate(["/payments"])
   }
 
   formatCurrency(amount: number): string {
@@ -153,7 +115,7 @@ export class PaymentsListComponent implements OnInit {
     const date = new Date(dateString)
     return date.toLocaleDateString("en-IN", {
       year: "numeric",
-      month: "short",
+      month: "long",
       day: "numeric",
     })
   }

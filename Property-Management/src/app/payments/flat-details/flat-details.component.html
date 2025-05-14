@@ -1,0 +1,233 @@
+<div class="flat-details-container">
+  <div class="page-header">
+    <button mat-icon-button (click)="goBack()" class="back-button">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <h1 class="page-title">Flat Details</h1>
+  </div>
+
+  <div class="loading-container" *ngIf="isLoading">
+    <mat-spinner diameter="40"></mat-spinner>
+    <p>Loading flat details...</p>
+  </div>
+
+  <div class="details-content" *ngIf="!isLoading && flat">
+    <mat-card class="flat-info-card">
+      <mat-card-content>
+        <div class="flat-info">
+          <div class="info-row">
+            <div class="info-label">Property:</div>
+            <div class="info-value">{{ flat.property_name }}</div>
+          </div>
+          <div class="info-row" *ngIf="flat.block_name">
+            <div class="info-label">Block:</div>
+            <div class="info-value">{{ flat.block_name }}</div>
+          </div>
+          <div class="info-row">
+            <div class="info-label">Flat Number:</div>
+            <div class="info-value">{{ flat.flat_number }}</div>
+          </div>
+          <div class="info-row">
+            <div class="info-label">Floor:</div>
+            <div class="info-value">{{ flat.floor_number }}</div>
+          </div>
+          <div class="info-row">
+            <div class="info-label">Status:</div>
+            <div class="info-value">
+              <span class="status-badge" [ngClass]="'status-' + flat.status.toLowerCase()">
+                {{ flat.status }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="details-form-card">
+      <mat-card-header>
+        <mat-card-title>Flat Details</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <form [formGroup]="detailsForm" class="details-form">
+          <div class="form-section">
+            <h3 class="section-title">Basic Information</h3>
+            
+            <div class="form-row">
+              <mat-form-field appearance="outline">
+                <mat-label>Owner Type</mat-label>
+                <mat-select formControlName="ownerType">
+                  <mat-option value="Builder">Builder</mat-option>
+                  <mat-option value="Owner">Owner</mat-option>
+                </mat-select>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Owner Name</mat-label>
+                <input matInput formControlName="ownerName">
+              </mat-form-field>
+            </div>
+
+            <div class="form-row">
+              <mat-form-field appearance="outline">
+                <mat-label>BHK Type</mat-label>
+                <input matInput formControlName="bhkType">
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>UDS</mat-label>
+                <input matInput type="number" formControlName="uds">
+              </mat-form-field>
+            </div>
+
+            <div class="form-row">
+              <mat-form-field appearance="outline">
+                <mat-label>Parking</mat-label>
+                <input matInput formControlName="parking">
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Area (sq.ft)</mat-label>
+                <input matInput type="number" formControlName="area" (input)="calculateTotalAmount()">
+              </mat-form-field>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <h3 class="section-title">Pricing Details</h3>
+            
+            <div class="form-row">
+              <mat-form-field appearance="outline">
+                <mat-label>Unit Price (per sq.ft)</mat-label>
+                <input matInput type="number" formControlName="unitPrice" (input)="calculateTotalAmount()">
+                <span matPrefix>₹&nbsp;</span>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Semi Finished Flat Price</mat-label>
+                <input matInput type="number" formControlName="semiFinishedPrice" (input)="calculateTotalAmount()">
+                <span matPrefix>₹&nbsp;</span>
+              </mat-form-field>
+            </div>
+
+            <div class="form-row">
+              <mat-form-field appearance="outline">
+                <mat-label>Work Order Estimate</mat-label>
+                <input matInput type="number" formControlName="workOrderEstimate" (input)="calculateTotalAmount()">
+                <span matPrefix>₹&nbsp;</span>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Registration GST</mat-label>
+                <input matInput type="number" formControlName="registrationGst" (input)="calculateTotalAmount()">
+                <span matPrefix>₹&nbsp;</span>
+              </mat-form-field>
+            </div>
+
+            <div class="form-row">
+              <mat-form-field appearance="outline">
+                <mat-label>Miscellaneous Amount</mat-label>
+                <input matInput type="number" formControlName="miscellaneousAmount" (input)="calculateTotalAmount()">
+                <span matPrefix>₹&nbsp;</span>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Total Flat Amount</mat-label>
+                <input matInput type="number" formControlName="totalFlatAmount" readonly>
+                <span matPrefix>₹&nbsp;</span>
+              </mat-form-field>
+            </div>
+
+            <div class="form-row">
+              <mat-form-field appearance="outline">
+                <mat-label>Sold By</mat-label>
+                <mat-select formControlName="soldBy">
+                  <mat-option [value]="">None</mat-option>
+                  <mat-option *ngFor="let agent of agents" [value]="agent.id">
+                    {{ agent.name }}
+                  </mat-option>
+                </mat-select>
+                <mat-progress-spinner *ngIf="loadingAgents" diameter="20" mode="indeterminate" class="spinner-in-field">
+                </mat-progress-spinner>
+              </mat-form-field>
+            </div>
+          </div>
+        </form>
+      </mat-card-content>
+      <mat-card-actions align="end">
+        <button mat-raised-button color="primary" (click)="saveDetails()" [disabled]="savingDetails">
+          <mat-spinner diameter="20" *ngIf="savingDetails" class="button-spinner"></mat-spinner>
+          <span *ngIf="!savingDetails">Save Details</span>
+        </button>
+      </mat-card-actions>
+    </mat-card>
+
+    <mat-card class="payments-card">
+      <mat-card-header>
+        <mat-card-title>Payments</mat-card-title>
+        <button mat-raised-button color="primary" (click)="addPayment()" class="add-button">
+          <mat-icon>add</mat-icon>
+          Add Payment
+        </button>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="loading-container" *ngIf="loadingPayments">
+          <mat-spinner diameter="30"></mat-spinner>
+          <p>Loading payments...</p>
+        </div>
+
+        <div class="no-data" *ngIf="!loadingPayments && payments.length === 0">
+          <p>No payments found for this flat.</p>
+        </div>
+
+        <div class="table-container" *ngIf="!loadingPayments && payments.length > 0">
+          <table mat-table [dataSource]="payments" class="payments-table">
+            <ng-container matColumnDef="date">
+              <th mat-header-cell *matHeaderCellDef>Date</th>
+              <td mat-cell *matCellDef="let payment">{{ formatDate(payment.payment_date) }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="type">
+              <th mat-header-cell *matHeaderCellDef>Type</th>
+              <td mat-cell *matCellDef="let payment">{{ payment.payment_type }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="method">
+              <th mat-header-cell *matHeaderCellDef>Method</th>
+              <td mat-cell *matCellDef="let payment">{{ payment.payment_method }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="amount">
+              <th mat-header-cell *matHeaderCellDef>Amount</th>
+              <td mat-cell *matCellDef="let payment" class="amount-cell">
+                {{ formatCurrency(payment.amount) }}
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="reference">
+              <th mat-header-cell *matHeaderCellDef>Reference</th>
+              <td mat-cell *matCellDef="let payment">{{ payment.reference_number || 'N/A' }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="actions">
+              <th mat-header-cell *matHeaderCellDef>Actions</th>
+              <td mat-cell *matCellDef="let payment">
+                <button mat-icon-button color="primary" (click)="viewPaymentDetails(payment.id)" matTooltip="View Details">
+                  <mat-icon>visibility</mat-icon>
+                </button>
+                <button mat-icon-button color="accent" (click)="editPayment(payment)" matTooltip="Edit Payment">
+                  <mat-icon>edit</mat-icon>
+                </button>
+                <button mat-icon-button color="warn" (click)="deletePayment(payment.id)" matTooltip="Delete Payment">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+          </table>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>

@@ -1,225 +1,190 @@
-const Payment = require('../models/payment');
-const FlatPricing = require('../models/flatPricing');
-const fs = require('fs');
-const path = require('path');
-const { v4: uuidv4 } = require('uuid');
-
-// Ensure uploads directory exists
-const uploadsDir = path.join(__dirname, '../uploads/receipts');
-if (!fs.existsSync(uploadsDir)) {
-  fs.mkdirSync(uploadsDir, { recursive: true });
-}
+const Payment = require("../models/payment");
+const FlatDetail = require("../models/flatDetail");
+const PaymentSchedule = require("../models/paymentSchedule");
+const path = require("path");
 
 exports.getAllPayments = async (req, res) => {
   try {
     const payments = await Payment.getAllPayments();
-    res.status(200).json(payments);
+    res.json(payments);
   } catch (error) {
-    console.error('Error fetching payments:', error);
-    res.status(500).json({ message: 'Error fetching payments', error: error.message });
-  }
-};
-
-exports.getPaymentsByFlatId = async (req, res) => {
-  try {
-    const { flatId } = req.params;
-    const payments = await Payment.getPaymentsByFlatId(flatId);
-    res.status(200).json(payments);
-  } catch (error) {
-    console.error(`Error fetching payments for flat ${req.params.flatId}:`, error);
-    res.status(500).json({ message: 'Error fetching payments', error: error.message });
+    console.error("Error in getAllPayments:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
   }
 };
 
 exports.getPaymentsByPropertyId = async (req, res) => {
   try {
-    const { propertyId } = req.params;
+    const propertyId = req.params.propertyId;
     const payments = await Payment.getPaymentsByPropertyId(propertyId);
-    res.status(200).json(payments);
+    res.json(payments);
   } catch (error) {
-    console.error(`Error fetching payments for property ${req.params.propertyId}:`, error);
-    res.status(500).json({ message: 'Error fetching payments', error: error.message });
+    console.error("Error in getPaymentsByPropertyId:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
+exports.getPaymentsByFlatId = async (req, res) => {
+  try {
+    const flatId = req.params.flatId;
+    const payments = await Payment.getPaymentsByFlatId(flatId);
+    res.json(payments);
+  } catch (error) {
+    console.error("Error in getPaymentsByFlatId:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
   }
 };
 
 exports.getPaymentById = async (req, res) => {
   try {
-    const { id } = req.params;
-    const payment = await Payment.getPaymentById(id);
-    
+    const payment = await Payment.getPaymentById(req.params.id);
     if (!payment) {
-      return res.status(404).json({ message: 'Payment not found' });
+      return res.status(404).json({ message: "Payment not found" });
     }
-    
-    res.status(200).json(payment);
+    res.json(payment);
   } catch (error) {
-    console.error(`Error fetching payment ${req.params.id}:`, error);
-    res.status(500).json({ message: 'Error fetching payment', error: error.message });
+    console.error("Error in getPaymentById:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
   }
 };
 
 exports.createPayment = async (req, res) => {
   try {
-    let paymentData = { ...req.body };
-    
-    // Handle file upload if present
+    let receiptImage = null;
     if (req.file) {
-      const filename = `${uuidv4()}-${req.file.originalname}`;
-      const filepath = path.join(uploadsDir, filename);
-      
-      fs.writeFileSync(filepath, req.file.buffer);
-      paymentData.receipt_image_path = `/uploads/receipts/${filename}`;
+      receiptImage = `/uploads/receipts/${path.basename(req.file.path)}`;
     }
-    
-    // Add the user ID from the authenticated request
-    paymentData.created_by = req.user.id;
-    
-    const payment = await Payment.createPayment(paymentData);
-    res.status(201).json(payment);
+
+    const paymentData = {
+      ...req.body,
+      receiptImage,
+    };
+
+    const paymentId = await Payment.createPayment(paymentData, req.user.id);
+    res.status(201).json({ id: paymentId, message: "Payment created successfully" });
   } catch (error) {
-    console.error('Error creating payment:', error);
-    res.status(500).json({ message: 'Error creating payment', error: error.message });
+    console.error("Error in createPayment:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
   }
 };
 
 exports.updatePayment = async (req, res) => {
   try {
-    const { id } = req.params;
     let paymentData = { ...req.body };
     
-    // Get existing payment to check if we need to delete old image
-    const existingPayment = await Payment.getPaymentById(id);
-    if (!existingPayment) {
-      return res.status(404).json({ message: 'Payment not found' });
-    }
-    
-    // Handle file upload if present
     if (req.file) {
-      const filename = `${uuidv4()}-${req.file.originalname}`;
-      const filepath = path.join(uploadsDir, filename);
-      
-      fs.writeFileSync(filepath, req.file.buffer);
-      paymentData.receipt_image_path = `/uploads/receipts/${filename}`;
-      
-      // Delete old image if exists
-      if (existingPayment.receipt_image_path) {
-        const oldFilePath = path.join(__dirname, '..', existingPayment.receipt_image_path);
-        if (fs.existsSync(oldFilePath)) {
-          fs.unlinkSync(oldFilePath);
-        }
-      }
-    } else {
-      // Keep existing image path if no new file uploaded
-      paymentData.receipt_image_path = existingPayment.receipt_image_path;
+      paymentData.receiptImage = `/uploads/receipts/${path.basename(req.file.path)}`;
     }
-    
-    const payment = await Payment.updatePayment(id, paymentData);
-    res.status(200).json(payment);
+
+    const success = await Payment.updatePayment(req.params.id, paymentData);
+    if (!success) {
+      return res.status(404).json({ message: "Payment not found or no changes made" });
+    }
+    res.json({ message: "Payment updated successfully" });
   } catch (error) {
-    console.error(`Error updating payment ${req.params.id}:`, error);
-    res.status(500).json({ message: 'Error updating payment', error: error.message });
+    console.error("Error in updatePayment:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
   }
 };
 
 exports.deletePayment = async (req, res) => {
   try {
-    const { id } = req.params;
-    
-    // Get existing payment to delete image if exists
-    const existingPayment = await Payment.getPaymentById(id);
-    if (!existingPayment) {
-      return res.status(404).json({ message: 'Payment not found' });
+    const success = await Payment.deletePayment(req.params.id);
+    if (!success) {
+      return res.status(404).json({ message: "Payment not found" });
     }
-    
-    // Delete image if exists
-    if (existingPayment.receipt_image_path) {
-      const filePath = path.join(__dirname, '..', existingPayment.receipt_image_path);
-      if (fs.existsSync(filePath)) {
-        fs.unlinkSync(filePath);
-      }
-    }
-    
-    await Payment.deletePayment(id);
-    res.status(200).json({ message: 'Payment deleted successfully' });
+    res.json({ message: "Payment deleted successfully" });
   } catch (error) {
-    console.error(`Error deleting payment ${req.params.id}:`, error);
-    res.status(500).json({ message: 'Error deleting payment', error: error.message });
+    console.error("Error in deletePayment:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
   }
 };
 
-exports.getPaymentSummary = async (req, res) => {
-  try {
-    const summary = await Payment.getPaymentSummary();
-    res.status(200).json(summary);
-  } catch (error) {
-    console.error('Error fetching payment summary:', error);
-    res.status(500).json({ message: 'Error fetching payment summary', error: error.message });
-  }
-};
+exports.uploadPaymentReceipt = Payment.getUploadMiddleware();
 
-exports.getPaymentSummaryByPropertyId = async (req, res) => {
+// Flat Details Controller Methods
+exports.getFlatDetailByFlatId = async (req, res) => {
   try {
-    const { propertyId } = req.params;
-    const summary = await Payment.getPaymentSummaryByPropertyId(propertyId);
-    res.status(200).json(summary);
-  } catch (error) {
-    console.error(`Error fetching payment summary for property ${req.params.propertyId}:`, error);
-    res.status(500).json({ message: 'Error fetching payment summary', error: error.message });
-  }
-};
-
-exports.getPaymentSummaryByFlatId = async (req, res) => {
-  try {
-    const { flatId } = req.params;
-    const summary = await Payment.getPaymentSummaryByFlatId(flatId);
+    const flatId = req.params.flatId;
+    const flatDetail = await FlatDetail.getFlatDetailByFlatId(flatId);
     
-    if (!summary) {
-      return res.status(404).json({ message: 'Flat not found or no payment data available' });
+    if (!flatDetail) {
+      return res.status(404).json({ message: "Flat details not found" });
     }
     
-    res.status(200).json(summary);
+    res.json(flatDetail);
   } catch (error) {
-    console.error(`Error fetching payment summary for flat ${req.params.flatId}:`, error);
-    res.status(500).json({ message: 'Error fetching payment summary', error: error.message });
+    console.error("Error in getFlatDetailByFlatId:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
   }
 };
 
-exports.getFlatPricing = async (req, res) => {
+exports.createOrUpdateFlatDetail = async (req, res) => {
   try {
-    const { flatId } = req.params;
-    const pricing = await FlatPricing.getFlatPricingByFlatId(flatId);
+    const flatId = req.params.flatId;
+    const detailId = await FlatDetail.createOrUpdateFlatDetail(flatId, req.body);
     
-    if (!pricing) {
-      return res.status(404).json({ message: 'Flat pricing not found' });
-    }
-    
-    res.status(200).json(pricing);
+    res.status(200).json({ 
+      id: detailId, 
+      message: "Flat details saved successfully" 
+    });
   } catch (error) {
-    console.error(`Error fetching pricing for flat ${req.params.flatId}:`, error);
-    res.status(500).json({ message: 'Error fetching flat pricing', error: error.message });
+    console.error("Error in createOrUpdateFlatDetail:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
   }
 };
 
-exports.createOrUpdateFlatPricing = async (req, res) => {
+// Payment Schedule Controller Methods
+exports.getPaymentSchedulesByFlatId = async (req, res) => {
   try {
-    const { flatId } = req.params;
-    const pricingData = { ...req.body, flat_id: flatId };
+    const flatId = req.params.flatId;
+    const schedules = await PaymentSchedule.getSchedulesByFlatId(flatId);
+    res.json(schedules);
+  } catch (error) {
+    console.error("Error in getPaymentSchedulesByFlatId:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
+exports.createPaymentSchedule = async (req, res) => {
+  try {
+    const scheduleId = await PaymentSchedule.createSchedule(req.body);
+    res.status(201).json({ 
+      id: scheduleId, 
+      message: "Payment schedule created successfully" 
+    });
+  } catch (error) {
+    console.error("Error in createPaymentSchedule:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
+exports.updatePaymentSchedule = async (req, res) => {
+  try {
+    const success = await PaymentSchedule.updateSchedule(req.params.id, req.body);
     
-    // Calculate total flat amount if not provided
-    if (!pricingData.total_flat_amount) {
-      pricingData.total_flat_amount = (
-        parseFloat(pricingData.base_price || 0) +
-        parseFloat(pricingData.semi_finished_price || 0) +
-        parseFloat(pricingData.work_order_estimate || 0) +
-        parseFloat(pricingData.registration_gst || 0) +
-        parseFloat(pricingData.miscellaneous_amount || 0)
-      );
+    if (!success) {
+      return res.status(404).json({ message: "Payment schedule not found" });
     }
     
-    const pricing = await FlatPricing.updateFlatPricing(flatId, pricingData);
-    res.status(200).json(pricing);
+    res.json({ message: "Payment schedule updated successfully" });
   } catch (error) {
-    console.error(`Error updating pricing for flat ${req.params.flatId}:`, error);
-    res.status(500).json({ message: 'Error updating flat pricing', error: error.message });
+    console.error("Error in updatePaymentSchedule:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
+exports.deletePaymentSchedule = async (req, res) => {
+  try {
+    const success = await PaymentSchedule.deleteSchedule(req.params.id);
+    
+    if (!success) {
+      return res.status(404).json({ message: "Payment schedule not found" });
+    }
+    
+    res.json({ message: "Payment schedule deleted successfully" });
+  } catch (error) {
+    console.error("Error in deletePaymentSchedule:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
   }
 };

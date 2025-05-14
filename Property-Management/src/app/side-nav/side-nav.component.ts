@@ -28,7 +28,7 @@ export class SideNavComponent implements OnInit {
     { name: "Properties", icon: "business", route: "/properties" },
     { name: "Agents", icon: "people", route: "/agents" },
     { name: "Users", icon: "admin_panel_settings", route: "/users" },
-    { name: "Payment", icon: "payments", route: "/paymentlist" },
+    { name: "Payment", icon: "payments", route: "/payments" },
     { name: "Reports", icon: "assessment", route: "/reports" },
     { name: "Settings", icon: "settings", route: "/settings" },
   ]

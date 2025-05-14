@@ -63,7 +63,8 @@ import { ConfirmDialogComponent } from './shared/confirm-dialog/confirm-dialog.c
 import { EditPropertyComponent } from './dashboard/properties/edit-property/edit-property.component';
 import { PaymentsListComponent } from './payments/payments-list/payments-list.component';
 import { AddPaymentDialogComponent } from './payments/add-payment-dialog/add-payment-dialog.component';
-import { EditPaymentComponent } from './payments/edit-payment/edit-payment.component';
+import { PaymentDetailsComponent } from './payments/payment-details/payment-details.component';
+import { FlatDetailsComponent } from './payments/flat-details/flat-details.component';
 
 @NgModule({
   declarations: [
@@ -91,7 +92,8 @@ import { EditPaymentComponent } from './payments/edit-payment/edit-payment.compo
     EditPropertyComponent,
     PaymentsListComponent,
     AddPaymentDialogComponent,
-    EditPaymentComponent,
+    PaymentDetailsComponent,
+    FlatDetailsComponent,
   ],
   imports: [
     BrowserModule,
