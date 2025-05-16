@@ -154,6 +154,9 @@ class Property {
       await connection.beginTransaction()
 
       // Insert property basic details
+      const amenitiesJson = Array.isArray(propertyData.amenities)
+        ? JSON.stringify(propertyData.amenities)
+        : propertyData.amenities || "[]"
       const [propertyResult] = await connection.query(
         `INSERT INTO properties (
           name, type, price, locality, status, total_count, 
@@ -169,7 +172,7 @@ class Property {
           propertyData.totalCount,
           propertyData.totalLandArea,
           propertyData.unitSizes,
-          JSON.stringify(propertyData.amenities || []),
+          amenitiesJson,
           propertyData.hasBlocks || false,
           propertyData.totalBlocks || 1,
           propertyData.targetMarket || null,
@@ -261,6 +264,9 @@ class Property {
       await connection.beginTransaction()
 
       // Update property basic details
+      const amenitiesJson = Array.isArray(propertyData.amenities)
+        ? JSON.stringify(propertyData.amenities)
+        : propertyData.amenities || "[]"
       await connection.query(
         `UPDATE properties SET 
           name = ?, type = ?, price = ?, locality = ?, 
@@ -278,7 +284,7 @@ class Property {
           propertyData.totalCount,
           propertyData.totalLandArea,
           propertyData.unitSizes,
-          JSON.stringify(propertyData.amenities || []),
+          amenitiesJson,
           propertyData.hasBlocks || false,
           propertyData.totalBlocks || 1,
           propertyData.targetMarket || null,
@@ -439,8 +445,8 @@ class Property {
 
   // Get upload middleware
   static getUploadMiddleware() {
-  return upload.array("images", 5) // Allow up to 5 images
-}
+    return upload.array("images", 5) // Allow up to 5 images
+  }
 }
 
 module.exports = Property

@@ -1,0 +1,4 @@
+<div class="profile-wrapper">
+  <app-admin-profile *ngIf="userRole === 'admin'"></app-admin-profile>
+  <app-agent-profile *ngIf="userRole === 'agent'"></app-agent-profile>
+</div>

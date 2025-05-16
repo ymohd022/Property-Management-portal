@@ -52,7 +52,11 @@ export class PropertiesListComponent implements OnInit {
     this.isLoading = true
     this.propertyService.getAllProperties().subscribe({
       next: (data) => {
-        this.dataSource.data = data
+        // Map locality to location for display
+        this.dataSource.data = data.map((property) => ({
+          ...property,
+          location: property.locality, // Map locality to location
+        }))
         this.isLoading = false
       },
       error: (error) => {

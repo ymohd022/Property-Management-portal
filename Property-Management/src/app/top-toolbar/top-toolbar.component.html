@@ -1,4 +1,4 @@
-<mat-toolbar class="toolbar">
+<mat-toolbar colors="primary" class="toolbar">
   <div class="toolbar-left">
     <button mat-icon-button class="menu-button" (click)="onMenuClick()">
       <mat-icon>menu</mat-icon>
@@ -6,12 +6,12 @@
     <span class="toolbar-title">QMAKS Property Management</span>
   </div>
   
-  <div class="toolbar-right">
+  <!-- <div class="toolbar-right">
     <div class="search-container">
       <mat-icon>search</mat-icon>
       <input type="text" placeholder="Search..." class="search-input">
-    </div>
-    
+    </div> -->
+    <div class="toolbar-actions">
     <button mat-icon-button [matMenuTriggerFor]="notificationsMenu" class="notification-button">
       <mat-icon [matBadge]="getUnreadCount()" [matBadgeHidden]="getUnreadCount() === 0" matBadgeColor="warn">
         notifications
@@ -49,41 +49,29 @@
       </button>
     </mat-menu>
     
-    <button mat-icon-button [matMenuTriggerFor]="userMenu" class="user-button">
+   <button mat-icon-button [matMenuTriggerFor]="userMenu" class="user-menu-button">
       <div class="user-avatar">
-        <mat-icon>account_circle</mat-icon>
+        <img [src]="getProfileImageUrl()" alt="Profile" class="profile-image">
       </div>
     </button>
     
     <mat-menu #userMenu="matMenu">
       <div class="user-menu-header">
-        <div class="user-menu-avatar">
-          <mat-icon>account_circle</mat-icon>
-        </div>
-        <div class="user-menu-info">
-          <h4>{{ currentUser?.name || 'Admin User' }}</h4>
-          <p>{{ currentUser?.email || 'admin@qmaks.com' }}</p>
+        <div class="user-info">
+          <p class="user-name">{{ currentUser?.name }}</p>
+          <p class="user-role">{{ currentUser?.role | titlecase }}</p>
         </div>
       </div>
-      
       <mat-divider></mat-divider>
-      
-      <button mat-menu-item>
+      <button mat-menu-item [routerLink]="getProfileRoute()">
         <mat-icon>person</mat-icon>
         <span>My Profile</span>
       </button>
-      
-      <button mat-menu-item>
-        <mat-icon>settings</mat-icon>
-        <span>Settings</span>
-      </button>
-      
-      <mat-divider></mat-divider>
-      
-      <button mat-menu-item>
+      <button mat-menu-item (click)="logout()">
         <mat-icon>exit_to_app</mat-icon>
         <span>Logout</span>
       </button>
     </mat-menu>
-  </div>
+    </div>
 </mat-toolbar>
+

@@ -1,0 +1,113 @@
+<div class="profile-container">
+  <mat-card class="profile-card">
+    <mat-card-header>
+      <mat-card-title>My Profile</mat-card-title>
+      <mat-card-subtitle>Manage your personal information</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <div class="loading-container" *ngIf="isLoading">
+        <mat-spinner diameter="40"></mat-spinner>
+      </div>
+
+      <div class="profile-content" *ngIf="!isLoading">
+        <div class="profile-image-section">
+          <div class="profile-image-container">
+            <img [src]="getProfileImageUrl()" alt="Profile Picture" class="profile-image">
+            <div class="profile-role-badge">{{ profileData.role | titlecase }}</div>
+          </div>
+          <div class="profile-image-actions">
+            <input type="file" #fileInput style="display: none" accept="image/*" (change)="onFileSelected($event)">
+            <button mat-raised-button color="primary" (click)="fileInput.click()">
+              <mat-icon>photo_camera</mat-icon>
+              Select Image
+            </button>
+            <button mat-raised-button color="accent" [disabled]="!selectedFile || isSaving" (click)="uploadProfilePicture()">
+              <mat-icon>cloud_upload</mat-icon>
+              Upload
+            </button>
+          </div>
+        </div>
+
+        <div class="profile-details-section">
+          <form [formGroup]="profileForm" (ngSubmit)="onSubmit()">
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Name</mat-label>
+                <input matInput formControlName="name" placeholder="Your name">
+                <mat-error *ngIf="profileForm.get('name')?.hasError('required')">
+                  Name is required
+                </mat-error>
+              </mat-form-field>
+            </div>
+
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Email</mat-label>
+                <input matInput formControlName="email" placeholder="Your email">
+                <mat-hint>Email cannot be changed</mat-hint>
+              </mat-form-field>
+            </div>
+
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Role</mat-label>
+                <input matInput formControlName="role" placeholder="Your role">
+              </mat-form-field>
+            </div>
+
+            <div class="form-actions">
+              <button mat-raised-button color="primary" type="submit" [disabled]="profileForm.invalid || isSaving">
+                <mat-icon>save</mat-icon>
+                Save Changes
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <mat-divider class="section-divider"></mat-divider>
+
+      <div class="password-section" *ngIf="!isLoading">
+        <h3>Change Password</h3>
+        <form [formGroup]="passwordForm" (ngSubmit)="onChangePassword()">
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Current Password</mat-label>
+              <input matInput [type]="hideCurrentPassword ? 'password' : 'text'" formControlName="currentPassword">
+              <button mat-icon-button matSuffix (click)="hideCurrentPassword = !hideCurrentPassword" type="button">
+                <mat-icon>{{hideCurrentPassword ? 'visibility_off' : 'visibility'}}</mat-icon>
+              </button>
+              <mat-error *ngIf="passwordForm.get('currentPassword')?.hasError('required')">
+                Current password is required
+              </mat-error>
+            </mat-form-field>
+          </div>
+
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>New Password</mat-label>
+              <input matInput [type]="hideNewPassword ? 'password' : 'text'" formControlName="newPassword">
+              <button mat-icon-button matSuffix (click)="hideNewPassword = !hideNewPassword" type="button">
+                <mat-icon>{{hideNewPassword ? 'visibility_off' : 'visibility'}}</mat-icon>
+              </button>
+              <mat-error *ngIf="passwordForm.get('newPassword')?.hasError('required')">
+                New password is required
+              </mat-error>
+              <mat-error *ngIf="passwordForm.get('newPassword')?.hasError('minlength')">
+                Password must be at least 6 characters
+              </mat-error>
+            </mat-form-field>
+          </div>
+
+          <div class="form-actions">
+            <button mat-raised-button color="warn" type="submit" [disabled]="passwordForm.invalid || isChangingPassword">
+              <mat-icon>lock</mat-icon>
+              Change Password
+            </button>
+          </div>
+        </form>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>

@@ -31,6 +31,7 @@ export class SideNavComponent implements OnInit {
     { name: "Payment", icon: "payments", route: "/payments" },
     { name: "Reports", icon: "assessment", route: "/reports" },
     { name: "Settings", icon: "settings", route: "/settings" },
+    { name: "Profile", icon: "person", route: "/profile" },
   ]
 
   agentMenuItems: NavItem[] = [

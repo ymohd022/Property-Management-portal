@@ -18,7 +18,7 @@ import { EditPropertyComponent } from './dashboard/properties/edit-property/edit
 import { PaymentsListComponent } from './payments/payments-list/payments-list.component';
 import { PaymentDetailsComponent } from './payments/payment-details/payment-details.component';
 import { FlatDetailsComponent } from './payments/flat-details/flat-details.component';
-
+import { ProfileComponent } from './profile/profile/profile.component';
 const routes: Routes = [
   { path: "", component: SplashScreenComponent },
   { path: "login", component: LoginComponent },
@@ -90,6 +90,11 @@ const routes: Routes = [
     data: { roles: ["admin"] },
   },
   {
+    path: "profile",
+    component: ProfileComponent,
+    canActivate: [AuthGuard],
+  },
+  {
     path: "agent/dashboard",
     component: AgentDashboardComponent,
     canActivate: [AuthGuard, RoleGuard],
@@ -98,6 +103,12 @@ const routes: Routes = [
   {
     path: "agent/leads",
     component: AgentLeadsComponent,
+    canActivate: [AuthGuard, RoleGuard],
+    data: { roles: ["agent"] },
+  },
+  {
+    path: "agent/profile",
+    component: ProfileComponent,
     canActivate: [AuthGuard, RoleGuard],
     data: { roles: ["agent"] },
   },

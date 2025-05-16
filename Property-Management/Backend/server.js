@@ -20,6 +20,7 @@ const propertyRoutes = require("./routes/propertyRoutes")
 const userRoutes = require("./routes/userRoutes")
 const dashboardRoutes = require("./routes/dashboardRoutes")
 const paymentRoutes = require("./routes/paymentRoutes")
+const profileRoutes = require("./routes/profileRoutes")
 
 
 // Middleware
@@ -40,7 +41,20 @@ app.use((req, res, next) => {
 })
 
 // Serve static files from uploads directory
-app.use("/uploads", express.static(path.join(__dirname, "uploads")))
+app.use(
+  "/uploads",
+  express.static(path.join(__dirname, "uploads"), {
+    setHeaders: (res, path) => {
+      if (path.endsWith(".jpg") || path.endsWith(".jpeg")) {
+        res.setHeader("Content-Type", "image/jpeg")
+      } else if (path.endsWith(".png")) {
+        res.setHeader("Content-Type", "image/png")
+      } else if (path.endsWith(".gif")) {
+        res.setHeader("Content-Type", "image/gif")
+      }
+    },
+  }),
+)
 
 // Routes
 app.use("/api/agents", agentRoutes)
@@ -50,6 +64,8 @@ app.use("/api/properties", propertyRoutes)
 app.use("/api/users", userRoutes)
 app.use("/api/dashboard", dashboardRoutes)
 app.use("/api/payments", paymentRoutes)
+app.use("/api/profile", profileRoutes)
+
 
 // Authentication routes
 app.post("/api/auth/login", async (req, res) => {

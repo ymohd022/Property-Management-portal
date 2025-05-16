@@ -65,6 +65,9 @@ import { PaymentsListComponent } from './payments/payments-list/payments-list.co
 import { AddPaymentDialogComponent } from './payments/add-payment-dialog/add-payment-dialog.component';
 import { PaymentDetailsComponent } from './payments/payment-details/payment-details.component';
 import { FlatDetailsComponent } from './payments/flat-details/flat-details.component';
+import { AdminProfileComponent } from './profile/admin-profile/admin-profile.component';
+import { AgentProfileComponent } from './profile/agent-profile/agent-profile.component';
+import { ProfileComponent } from './profile/profile/profile.component';
 
 @NgModule({
   declarations: [
@@ -94,6 +97,9 @@ import { FlatDetailsComponent } from './payments/flat-details/flat-details.compo
     AddPaymentDialogComponent,
     PaymentDetailsComponent,
     FlatDetailsComponent,
+    AdminProfileComponent,
+    AgentProfileComponent,
+    ProfileComponent,
   ],
   imports: [
     BrowserModule,

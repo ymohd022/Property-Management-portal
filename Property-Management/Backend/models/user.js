@@ -4,7 +4,9 @@ const bcrypt = require("bcryptjs")
 class User {
   static async getAll() {
     try {
-      const [users] = await db.query("SELECT id, name, email, role, status FROM users")
+      const [users] = await db.query(
+        "SELECT id, name, email, role, status, profile_picture, created_at, updated_at FROM users",
+      )
       return users
     } catch (error) {
       console.error("Error getting users:", error)
@@ -14,7 +16,10 @@ class User {
 
   static async getById(id) {
     try {
-      const [users] = await db.query("SELECT id, name, email, role, status FROM users WHERE id = ?", [id])
+      const [users] = await db.query(
+        "SELECT id, name, email, role, status, profile_picture, created_at, updated_at FROM users WHERE id = ?",
+        [id],
+      )
       return users[0]
     } catch (error) {
       console.error(`Error getting user with id ${id}:`, error)
@@ -44,8 +49,15 @@ class User {
 
       const hashedPassword = await bcrypt.hash(userData.password, 10)
       const [result] = await db.query(
-        "INSERT INTO users (name, email, password, role, status) VALUES (?, ?, ?, ?, ?)",
-        [userData.name, userData.email, hashedPassword, userData.role, userData.status || "Active"],
+        "INSERT INTO users (name, email, password, role, status, profile_picture) VALUES (?, ?, ?, ?, ?, ?)",
+        [
+          userData.name,
+          userData.email,
+          hashedPassword,
+          userData.role,
+          userData.status || "Active",
+          userData.profile_picture || null,
+        ],
       )
 
       // If user is agent, create agent record
@@ -116,6 +128,11 @@ class User {
         updateValues.push(userData.status)
       }
 
+      if (userData.profile_picture !== undefined) {
+        updateFields.push("profile_picture = ?")
+        updateValues.push(userData.profile_picture)
+      }
+
       if (updateFields.length === 0) {
         return false
       }
@@ -128,7 +145,7 @@ class User {
       )
 
       // If user is agent, update agent record
-      if (userData.role === "agent") {
+      if (userData.role === "agent" || (await this.isAgent(id, connection))) {
         // Check if agent record exists
         const [agents] = await connection.query("SELECT id FROM agents WHERE user_id = ?", [id])
 
@@ -162,6 +179,11 @@ class User {
             agentUpdateValues.push(userData.status)
           }
 
+          if (userData.address) {
+            agentUpdateFields.push("address = ?")
+            agentUpdateValues.push(userData.address)
+          }
+
           if (agentUpdateFields.length > 0) {
             agentUpdateValues.push(agents[0].id)
             await connection.query(
@@ -169,17 +191,18 @@ class User {
               agentUpdateValues,
             )
           }
-        } else {
+        } else if (userData.role === "agent") {
           // Create new agent record
           await connection.query(
-            "INSERT INTO agents (user_id, name, email, phone, commission_rate, status) VALUES (?, ?, ?, ?, ?, ?)",
+            "INSERT INTO agents (user_id, name, email, phone, commission_rate, status, address) VALUES (?, ?, ?, ?, ?, ?, ?)",
             [
               id,
-              userData.name,
-              userData.email,
+              userData.name || (await this.getById(id)).name,
+              userData.email || (await this.getById(id)).email,
               userData.phone || "",
               userData.commissionRate || 5,
               userData.status || "Active",
+              userData.address || "",
             ],
           )
         }
@@ -193,6 +216,17 @@ class User {
       throw error
     } finally {
       connection.release()
+    }
+  }
+
+  static async isAgent(id, connection) {
+    try {
+      const conn = connection || db
+      const [users] = await conn.query("SELECT role FROM users WHERE id = ?", [id])
+      return users.length > 0 && users[0].role === "agent"
+    } catch (error) {
+      console.error(`Error checking if user with id ${id} is an agent:`, error)
+      throw error
     }
   }
 
@@ -257,6 +291,7 @@ class User {
         email: user.email,
         role: user.role,
         status: user.status,
+        profile_picture: user.profile_picture,
       }
     } catch (error) {
       console.error("Error verifying user credentials:", error)

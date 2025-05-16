@@ -36,9 +36,9 @@ export class AddPropertyComponent implements OnInit {
   ]
 
   siteStatuses = [
-    { value: "Active", viewValue: "Active" },
-    { value: "Upcoming", viewValue: "Upcoming" },
-    { value: "Completed", viewValue: "Completed" },
+    { value: "active", viewValue: "Active" },
+    { value: "upcoming", viewValue: "Upcoming" },
+    { value: "completed", viewValue: "Completed" },
   ]
 
   flatTypes: FlatType[] = [
@@ -52,9 +52,9 @@ export class AddPropertyComponent implements OnInit {
   ]
 
   flatStatuses: FlatStatus[] = [
-    { value: "Available", viewValue: "Available", color: "#4caf50" },
-    { value: "Booked", viewValue: "Booked", color: "#ff9800" },
-    { value: "Sold", viewValue: "Sold", color: "#f44336" },
+    { value: "available", viewValue: "Available", color: "#4caf50" },
+    { value: "booked", viewValue: "Booked", color: "#ff9800" },
+    { value: "sold", viewValue: "Sold", color: "#f44336" },
   ]
 
   amenities = [
@@ -93,8 +93,6 @@ export class AddPropertyComponent implements OnInit {
       remarks: [""],
       blocks: this.fb.array([]),
       floors: this.fb.array([]), // For non-block properties
-      totalFloors: [1, [Validators.min(1), Validators.max(100)]], // Add this for non-block properties
-      flatsPerFloor: [4, [Validators.min(1), Validators.max(20)]], // Add this for non-block properties
     })
   }
 
@@ -203,7 +201,7 @@ export class AddPropertyComponent implements OnInit {
         flatNumber: [`${blockName}-${floorNumber}0${flatIndex}`],
         flatType: ["2bhk", [Validators.required]],
         flatSize: ["", [Validators.required, Validators.min(100)]],
-        flatStatus: ["Available", [Validators.required]],
+        flatStatus: ["available", [Validators.required]],
         flatPrice: ["", [Validators.required, Validators.min(0)]],
       }),
     )
@@ -291,7 +289,7 @@ export class AddPropertyComponent implements OnInit {
         flatNumber: [`${floorNumber}0${flatIndex}`],
         flatType: ["2bhk", [Validators.required]],
         flatSize: ["", [Validators.required, Validators.min(100)]],
-        flatStatus: ["Available", [Validators.required]],
+        flatStatus: ["available", [Validators.required]],
         flatPrice: ["", [Validators.required, Validators.min(0)]],
       }),
     )
@@ -370,6 +368,10 @@ export class AddPropertyComponent implements OnInit {
   }
 
   toggleAmenity(amenity: string) {
+    if (!this.selectedAmenities) {
+      this.selectedAmenities = []
+    }
+
     const index = this.selectedAmenities.indexOf(amenity)
     if (index === -1) {
       this.selectedAmenities.push(amenity)
@@ -377,6 +379,7 @@ export class AddPropertyComponent implements OnInit {
       this.selectedAmenities.splice(index, 1)
     }
     this.propertyForm.get("amenities")?.setValue(this.selectedAmenities)
+    console.log("Selected amenities:", this.selectedAmenities)
   }
 
   isAmenitySelected(amenity: string): boolean {
@@ -460,13 +463,21 @@ export class AddPropertyComponent implements OnInit {
 
   uploadImages(propertyId: number) {
     const formData = new FormData()
-    this.selectedFiles.forEach((file) => {
-      formData.append("images", file)
+
+    // Log the files being uploaded
+    console.log("Files to upload:", this.selectedFiles)
+
+    this.selectedFiles.forEach((file, index) => {
+      formData.append("images", file, file.name)
     })
 
     this.propertyService.uploadPropertyImage(propertyId, formData).subscribe({
-      next: () => this.handleSubmitSuccess(),
+      next: (response) => {
+        console.log("Upload successful:", response)
+        this.handleSubmitSuccess()
+      },
       error: (error) => {
+        console.error("Upload error:", error)
         this.isLoading = false
         this.snackBar.open(
           "Property created but failed to upload images: " + (error.message || error.error?.message || "Unknown error"),

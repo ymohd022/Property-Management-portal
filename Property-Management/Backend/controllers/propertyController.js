@@ -76,6 +76,8 @@ exports.deleteProperty = async (req, res) => {
 
 exports.uploadPropertyImages = async (req, res) => {
   try {
+    console.log("Upload request received:", req.files)
+
     if (!req.files || req.files.length === 0) {
       return res.status(400).json({ message: "No images uploaded" })
     }

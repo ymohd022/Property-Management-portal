@@ -34,6 +34,16 @@ class Agent {
     }
   }
 
+  static async getByUserId(userId) {
+    try {
+      const [agents] = await db.query("SELECT * FROM agents WHERE user_id = ?", [userId])
+      return agents[0]
+    } catch (error) {
+      console.error(`Error getting agent with user_id ${userId}:`, error)
+      throw error
+    }
+  }
+
   static async create(agentData) {
     try {
       const hashedPassword = await bcrypt.hash(agentData.password, 10)

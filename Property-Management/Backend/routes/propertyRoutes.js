@@ -2,6 +2,7 @@ const express = require("express")
 const router = express.Router()
 const propertyController = require("../controllers/propertyController")
 const authMiddleware = require("../middleware/authMiddleware")
+const Property = require("../models/property")
 
 // Apply auth middleware to all routes
 router.use(authMiddleware.verifyToken)
@@ -24,8 +25,8 @@ router.put("/:id", propertyController.updateProperty)
 // Delete property
 router.delete("/:id", propertyController.deleteProperty)
 
-// Upload property images
-router.post("/:id/images", propertyController.uploadPropertyImages)
+// Upload property images - Apply multer middleware here
+router.post("/:id/images", Property.getUploadMiddleware(), propertyController.uploadPropertyImages)
 
 // Set property image as primary
 router.put("/:id/images/:imageId/primary", propertyController.setPropertyImageAsPrimary)
